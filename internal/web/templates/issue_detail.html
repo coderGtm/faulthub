@@ -1,14 +1,15 @@
 {{define "content"}}
-<h1>{{.Issue.Title}}</h1>
+<div class="page-head">
+	<h1>{{.Issue.Title}}</h1>
+	<p class="page-sub"><a href="/apps/{{.App.ID}}/issues">← All issues</a> · <span class="badge badge-{{.Issue.Status}}">{{.Issue.Status}}</span></p>
+</div>
 <p>
-	<span class="badge badge-{{.Issue.Status}}">{{.Issue.Status}}</span>
 	<span class="stat"><b>{{.Issue.ReportCount}}</b><span class="muted">reports</span></span>
 	<span class="stat"><b>{{.Issue.InstallCount}}</b><span class="muted">installs</span></span>
 	<span class="stat"><b>{{fmtTime .Issue.FirstSeenAt}}</b><span class="muted">first seen</span></span>
 	<span class="stat"><b>{{fmtTime .Issue.LastSeenAt}}</b><span class="muted">last seen</span></span>
 </p>
 <p>
-	<a href="/apps/{{.App.ID}}/issues">← All issues</a> ·
 	<form class="inline" method="post" action="/apps/{{.App.ID}}/issues/{{.Issue.ID}}/status">
 		<input type="hidden" name="csrf" value="{{.CSRF}}">
 		{{if eq .Issue.Status "open"}}
@@ -38,6 +39,7 @@
 <div class="card">
 	<h2>Occurrences ({{.Total}})</h2>
 	{{if .Reports}}
+	<div class="table-wrap">
 	<table class="table">
 		<tr><th>Received</th><th>Version</th><th>Android</th><th>Device</th><th>Install</th><th>Report</th></tr>
 		{{range .Reports}}
@@ -51,6 +53,7 @@
 		</tr>
 		{{end}}
 	</table>
+	</div>
 	{{else}}<p class="muted">No occurrences.</p>{{end}}
 </div>
 

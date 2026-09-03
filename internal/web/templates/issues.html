@@ -1,6 +1,8 @@
 {{define "content"}}
-<h1>{{.App.Name}} · Issues</h1>
-<p><a href="/apps/{{.App.ID}}">← App overview</a></p>
+<div class="page-head">
+	<h1>{{.App.Name}} · Issues</h1>
+	<p class="page-sub"><a href="/apps/{{.App.ID}}">← App overview</a>{{if .Total}} · {{.Total}} total{{end}}</p>
+</div>
 
 <div class="card">
 <form method="get" action="/apps/{{.App.ID}}/issues" class="filterbar">
@@ -39,6 +41,7 @@
 
 <div class="card">
 {{if .Issues}}
+<div class="table-wrap">
 <table class="table">
 	<tr><th>Status</th><th>Issue</th><th>Reports</th><th>Installs</th><th>First seen</th><th>Last seen</th></tr>
 	{{range .Issues}}
@@ -52,6 +55,7 @@
 	</tr>
 	{{end}}
 </table>
+</div>
 {{else}}<p class="muted">No issues match (total {{.Total}}).</p>{{end}}
 </div>
 

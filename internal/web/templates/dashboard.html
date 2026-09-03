@@ -1,5 +1,8 @@
 {{define "content"}}
-<h1>Overview</h1>
+<div class="page-head">
+	<h1>Overview</h1>
+	<p class="page-sub">Crash activity across all apps.</p>
+</div>
 
 <div class="card">
 	<h2>Reports per day (last 30)</h2>
@@ -9,6 +12,7 @@
 <div class="card">
 	<h2>Apps</h2>
 	{{if .Overview}}
+	<div class="table-wrap">
 	<table class="table">
 		<tr><th>App</th><th>Reports</th><th>Open issues</th><th>Last report</th></tr>
 		{{range .Overview}}
@@ -20,12 +24,14 @@
 		</tr>
 		{{end}}
 	</table>
+	</div>
 	{{else}}<p class="muted">No apps yet. <a href="/apps">Create one</a>.</p>{{end}}
 </div>
 
 <div class="card">
 	<h2>Top issues across apps</h2>
 	{{if .TopIssues}}
+	<div class="table-wrap">
 	<table class="table">
 		<tr><th>Issue</th><th>App</th><th>Reports</th><th>Installs</th><th>Status</th><th>Last seen</th></tr>
 		{{range .TopIssues}}
@@ -39,6 +45,7 @@
 		</tr>
 		{{end}}
 	</table>
+	</div>
 	{{else}}<p class="muted">No crash reports yet.</p>{{end}}
 </div>
 {{end}}

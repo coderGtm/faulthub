@@ -1,5 +1,8 @@
 {{define "content"}}
-<h1>{{.App.Name}}</h1>
+<div class="page-head">
+	<h1>{{.App.Name}}</h1>
+	<p class="page-sub">Created {{fmtTime .App.CreatedAt}} · <a href="/apps/{{.App.ID}}/issues">All issues →</a></p>
+</div>
 
 {{if .NewKey}}
 <div class="card">
@@ -16,7 +19,6 @@
 	<div class="stat"><b>{{.Stats.ResolvedIssues}}</b><span class="muted">resolved</span></div>
 	<div class="stat"><b>{{.Stats.Installs}}</b><span class="muted">installs seen</span></div>
 	<div class="stat"><b>{{fmtTime .Stats.LastReportAt}}</b><span class="muted">last report</span></div>
-	<p><a href="/apps/{{.App.ID}}/issues">All issues →</a></p>
 </div>
 
 <div class="card">
@@ -33,6 +35,7 @@
 <div class="card">
 	<h2>Top issues</h2>
 	{{if .TopIssues}}
+	<div class="table-wrap">
 	<table class="table">
 		<tr><th>Issue</th><th>Reports</th><th>Installs</th><th>Status</th><th>Last seen</th></tr>
 		{{range .TopIssues}}
@@ -45,6 +48,7 @@
 		</tr>
 		{{end}}
 	</table>
+	</div>
 	{{else}}<p class="muted">No issues yet.</p>{{end}}
 </div>
 
