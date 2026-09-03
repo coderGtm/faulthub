@@ -1,0 +1,65 @@
+{{define "content"}}
+<h1>{{.Issue.Title}}</h1>
+<p>
+	<span class="badge badge-{{.Issue.Status}}">{{.Issue.Status}}</span>
+	<span class="stat"><b>{{.Issue.ReportCount}}</b><span class="muted">reports</span></span>
+	<span class="stat"><b>{{.Issue.InstallCount}}</b><span class="muted">installs</span></span>
+	<span class="stat"><b>{{fmtTime .Issue.FirstSeenAt}}</b><span class="muted">first seen</span></span>
+	<span class="stat"><b>{{fmtTime .Issue.LastSeenAt}}</b><span class="muted">last seen</span></span>
+</p>
+<p>
+	<a href="/apps/{{.App.ID}}/issues">← All issues</a> ·
+	<form class="inline" method="post" action="/apps/{{.App.ID}}/issues/{{.Issue.ID}}/status">
+		<input type="hidden" name="csrf" value="{{.CSRF}}">
+		{{if eq .Issue.Status "open"}}
+		<input type="hidden" name="status" value="resolved">
+		<button class="btn" type="submit">Mark resolved</button>
+		{{else}}
+		<input type="hidden" name="status" value="open">
+		<button class="btn" type="submit">Reopen</button>
+		{{end}}
+	</form>
+	<form class="inline" method="post" action="/apps/{{.App.ID}}/issues/{{.Issue.ID}}/delete" data-confirm="Delete this issue and all its reports (incl. user emails)?">
+		<input type="hidden" name="csrf" value="{{.CSRF}}">
+		<button class="btn btn-danger" type="submit">Delete issue</button>
+	</form>
+</p>
+
+<div class="card"><h2>Reports per day (last 30)</h2>{{.Chart}}</div>
+
+{{if .HasLatest}}
+<div class="card">
+	<h2>Latest stack trace</h2>
+	<div class="pre">{{.Latest.StackTrace}}</div>
+	<p class="muted">From report <a href="/apps/{{.App.ID}}/reports/{{.Latest.ID}}">{{.Latest.ID}}</a> · {{fmtTime .Latest.ReceivedAt}}</p>
+</div>
+{{end}}
+
+<div class="card">
+	<h2>Occurrences ({{.Total}})</h2>
+	{{if .Reports}}
+	<table class="table">
+		<tr><th>Received</th><th>Version</th><th>Android</th><th>Device</th><th>Install</th><th>Report</th></tr>
+		{{range .Reports}}
+		<tr>
+			<td>{{fmtTime .ReceivedAt}}</td>
+			<td>{{.AppVersionName}}</td>
+			<td>{{.AndroidVersion}}</td>
+			<td>{{.PhoneModel}}</td>
+			<td>{{.InstallationID}}</td>
+			<td><a href="/apps/{{.AppID}}/reports/{{.ID}}">{{.ID}}</a></td>
+		</tr>
+		{{end}}
+	</table>
+	{{else}}<p class="muted">No occurrences.</p>{{end}}
+</div>
+
+{{if gt (len .PageNums) 1}}
+<div class="pagination">
+	{{range .PageNums}}
+	{{if eq . $.Page}}<span><b>{{.}}</b></span>
+	{{else}}<a href="?page={{.}}">{{.}}</a>{{end}}
+	{{end}}
+</div>
+{{end}}
+{{end}}

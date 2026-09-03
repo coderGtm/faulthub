@@ -1,0 +1,66 @@
+{{define "content"}}
+<h1>{{.App.Name}} · Issues</h1>
+<p><a href="/apps/{{.App.ID}}">← App overview</a></p>
+
+<div class="card">
+<form method="get" action="/apps/{{.App.ID}}/issues" class="filterbar">
+	<div><label>Status</label>
+	<select name="status">
+		<option value="">all</option>
+		<option value="open" {{if eq .Status "open"}}selected{{end}}>open</option>
+		<option value="resolved" {{if eq .Status "resolved"}}selected{{end}}>resolved</option>
+	</select></div>
+	<div><label>Search</label><input type="text" name="q" value="{{.Q}}"></div>
+	<div><label>App version</label>
+	<select name="ver">
+		<option value="">all</option>
+		{{range .Versions}}<option value="{{.}}" {{if eq $.Ver .}}selected{{end}}>{{.}}</option>{{end}}
+	</select></div>
+	<div><label>Android</label>
+	<select name="os">
+		<option value="">all</option>
+		{{range .Androids}}<option value="{{.}}" {{if eq $.OS .}}selected{{end}}>{{.}}</option>{{end}}
+	</select></div>
+	<div><label>Device</label>
+	<select name="device">
+		<option value="">all</option>
+		{{range .Devices}}<option value="{{.}}" {{if eq $.Device .}}selected{{end}}>{{.}}</option>{{end}}
+	</select></div>
+	<div><label>From</label><input type="date" name="from" value="{{.From}}"></div>
+	<div><label>To</label><input type="date" name="to" value="{{.To}}"></div>
+	<div><label>Sort</label>
+	<select name="sort">
+		<option value="last" {{if eq .Sort "last"}}selected{{end}}>last seen</option>
+		<option value="count" {{if eq .Sort "count"}}selected{{end}}>count</option>
+	</select></div>
+	<div><button class="btn" type="submit">Filter</button></div>
+</form>
+</div>
+
+<div class="card">
+{{if .Issues}}
+<table class="table">
+	<tr><th>Status</th><th>Issue</th><th>Reports</th><th>Installs</th><th>First seen</th><th>Last seen</th></tr>
+	{{range .Issues}}
+	<tr>
+		<td><span class="badge badge-{{.Status}}">{{.Status}}</span></td>
+		<td><a href="/apps/{{.AppID}}/issues/{{.ID}}">{{.Title}}</a></td>
+		<td>{{.ReportCount}}</td>
+		<td>{{.InstallCount}}</td>
+		<td>{{fmtTime .FirstSeenAt}}</td>
+		<td>{{fmtTime .LastSeenAt}}</td>
+	</tr>
+	{{end}}
+</table>
+{{else}}<p class="muted">No issues match (total {{.Total}}).</p>{{end}}
+</div>
+
+{{if gt (len .PageNums) 1}}
+<div class="pagination">
+	{{range .PageNums}}
+	{{if eq . $.Page}}<span><b>{{.}}</b></span>
+	{{else}}<a href="?{{$.BaseQ}}&page={{.}}">{{.}}</a>{{end}}
+	{{end}}
+</div>
+{{end}}
+{{end}}

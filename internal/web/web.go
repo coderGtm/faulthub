@@ -18,7 +18,10 @@ import (
 //go:embed templates/*.html static/*
 var assets embed.FS
 
-var pageNames = []string{"login.html", "dashboard.html", "apps.html", "app_detail.html"}
+var pageNames = []string{
+	"login.html", "dashboard.html", "apps.html", "app_detail.html",
+	"issues.html", "issue_detail.html", "report_detail.html",
+}
 
 var funcMap = template.FuncMap{
 	"fmtTime": func(t time.Time) string {
@@ -122,6 +125,12 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /apps/{id}", s.requireAuth(s.pageAppDetail))
 	mux.HandleFunc("POST /apps/{id}/rotate-key", s.requireAuth(s.submitRotateKey))
 	mux.HandleFunc("POST /apps/{id}/delete", s.requireAuth(s.submitDeleteApp))
+	mux.HandleFunc("GET /apps/{id}/issues", s.requireAuth(s.pageIssues))
+	mux.HandleFunc("GET /apps/{id}/issues/{iid}", s.requireAuth(s.pageIssueDetail))
+	mux.HandleFunc("POST /apps/{id}/issues/{iid}/status", s.requireAuth(s.submitIssueStatus))
+	mux.HandleFunc("POST /apps/{id}/issues/{iid}/delete", s.requireAuth(s.submitDeleteIssue))
+	mux.HandleFunc("GET /apps/{id}/reports/{rid}", s.requireAuth(s.pageReportDetail))
+	mux.HandleFunc("POST /apps/{id}/reports/{rid}/delete", s.requireAuth(s.submitDeleteReport))
 	return s.secureHeaders(mux)
 }
 

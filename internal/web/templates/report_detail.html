@@ -1,0 +1,40 @@
+{{define "content"}}
+<h1>Report</h1>
+<p>
+	<a href="/apps/{{.App.ID}}/issues/{{.Issue.ID}}">← Issue: {{.Issue.Title}}</a>
+</p>
+
+<div class="card">
+	<table class="table">
+		<tr><th>REPORT_ID</th><td>{{.Report.ID}}</td></tr>
+		<tr><th>Issue</th><td><a href="/apps/{{.App.ID}}/issues/{{.Issue.ID}}">{{.Issue.Title}}</a></td></tr>
+		<tr><th>App</th><td>{{.App.Name}} ({{.Report.PackageName}})</td></tr>
+		<tr><th>App version</th><td>{{.Report.AppVersionName}} (code {{.Report.AppVersionCode}})</td></tr>
+		<tr><th>Android</th><td>{{.Report.AndroidVersion}}</td></tr>
+		<tr><th>Device</th><td>{{.Report.Brand}} {{.Report.PhoneModel}} ({{.Report.Product}})</td></tr>
+		<tr><th>Build</th><td>{{.Report.Build}}</td></tr>
+		<tr><th>Thread</th><td>{{.Report.ThreadDetails}}</td></tr>
+		<tr><th>Installation</th><td>{{.Report.InstallationID}}</td></tr>
+		<tr><th>App start (device clock)</th><td>{{.Report.UserAppStartDate}}</td></tr>
+		<tr><th>Crash (device clock)</th><td>{{.Report.UserCrashDate}}</td></tr>
+		<tr><th>Received (server)</th><td>{{fmtTime .Report.ReceivedAt}}</td></tr>
+		{{if .Report.UserComment}}<tr><th>User comment</th><td>{{.Report.UserComment}}</td></tr>{{end}}
+		{{if .Report.UserEmail}}<tr><th>User email (PII)</th><td>{{.Report.UserEmail}}</td></tr>{{end}}
+	</table>
+</div>
+
+<div class="card">
+	<h2>Stack trace</h2>
+	<div class="pre">{{.Report.StackTrace}}</div>
+</div>
+
+<div class="card">
+	<h2>Raw report</h2>
+	<div class="pre">{{.Report.Raw}}</div>
+</div>
+
+<form method="post" action="/apps/{{.App.ID}}/reports/{{.Report.ID}}/delete" data-confirm="Delete this report (incl. its user email)?">
+	<input type="hidden" name="csrf" value="{{.CSRF}}">
+	<button class="btn btn-danger" type="submit">Delete report</button>
+</form>
+{{end}}
