@@ -86,9 +86,19 @@ func Bars(bars []Bar, width, height int) template.HTML {
 		maxV = 1
 	}
 	rowH := height / len(bars)
-	barMax := width - 180
+	if rowH > 48 {
+		rowH = 48
+	}
+	if rowH < 24 {
+		rowH = 24
+	}
+	totalH := rowH * len(bars)
+	barMax := width - 170 - 64
+	if barMax < 40 {
+		barMax = 40
+	}
 	var b strings.Builder
-	b.WriteString(svgOpen(width, height))
+	b.WriteString(svgOpen(width, totalH))
 	for i, bar := range bars {
 		yMid := i*rowH + rowH/2
 		w := int(math.Round(float64(bar.Value) / float64(maxV) * float64(barMax)))
@@ -96,7 +106,7 @@ func Bars(bars []Bar, width, height int) template.HTML {
 			`" width="` + strconv.Itoa(w) + `" height="` + strconv.Itoa(rowH-8) + `" rx="3"><title>` +
 			html.EscapeString(bar.Label+": "+strconv.FormatInt(bar.Value, 10)) + `</title></rect>`)
 		b.WriteString(text(8, float64(yMid+4), truncate(bar.Label, 24), "start"))
-		b.WriteString(text(float64(170+w+8), float64(yMid+4), strconv.FormatInt(bar.Value, 10), "start"))
+		b.WriteString(text(float64(width-8), float64(yMid+4), strconv.FormatInt(bar.Value, 10), "end"))
 	}
 	b.WriteString("</svg>")
 	return template.HTML(b.String())

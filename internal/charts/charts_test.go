@@ -62,6 +62,19 @@ func TestBarsEmpty(t *testing.T) {
 	}
 }
 
+func TestBarsSingleValueFullyVisible(t *testing.T) {
+	svg := string(Bars([]Bar{{Label: "1.0", Value: 12}}, 500, 288))
+	if !strings.Contains(svg, `viewBox="0 0 500 48"`) {
+		t.Fatal("single bar must collapse to one compact row")
+	}
+	if !strings.Contains(svg, `text-anchor="end"`) {
+		t.Fatal("value must be end-anchored inside the viewport")
+	}
+	if !strings.Contains(svg, `>12</text>`) {
+		t.Fatal("value must render")
+	}
+}
+
 func TestDonutRenders(t *testing.T) {
 	bars := []Bar{{Label: "14", Value: 12}, {Label: "15", Value: 7}, {Label: "13", Value: 1}}
 	svg := string(Donut(bars, 500, 180))
