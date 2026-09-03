@@ -1,21 +1,30 @@
 package web
 
 import (
-	"html/template"
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"time"
 
-	"faulthub/internal/charts"
 	"faulthub/internal/store"
 )
 
-func toPoints(counts []store.Count) []charts.Point {
-	pts := make([]charts.Point, len(counts))
+func chartLabels(counts []store.Count) string {
+	labels := make([]string, len(counts))
 	for i, c := range counts {
-		pts[i] = charts.Point{Label: shortDay(c.Label), Value: c.Count}
+		labels[i] = shortDay(c.Label)
 	}
-	return pts
+	out, _ := json.Marshal(labels)
+	return string(out)
+}
+
+func chartValues(counts []store.Count) string {
+	values := make([]int64, len(counts))
+	for i, c := range counts {
+		values[i] = c.Count
+	}
+	out, _ := json.Marshal(values)
+	return string(out)
 }
 
 func shortDay(label string) string {
@@ -25,21 +34,9 @@ func shortDay(label string) string {
 	return label
 }
 
-func toBars(counts []store.Count) []charts.Bar {
-	bars := make([]charts.Bar, len(counts))
-	for i, c := range counts {
-		bars[i] = charts.Bar{Label: c.Label, Value: c.Count}
-	}
-	return bars
-}
-
-func lineChart(counts []store.Count, w, h int) template.HTML {
-	return charts.Line(toPoints(counts), w, h)
-}
-
 type dashboardData struct {
 	baseData
-	Chart     template.HTML
+	Trend     []store.Count
 	Overview  []store.AppOverview
 	TopIssues []store.Issue
 }
@@ -62,7 +59,7 @@ func (s *Server) pageDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 	s.render(w, http.StatusOK, "dashboard.html", dashboardData{
 		baseData:  baseData{Title: "Overview", Authed: true, CSRF: s.csrfToken(r)},
-		Chart:     lineChart(counts, 900, 240),
+		Trend:     counts,
 		Overview:  overview,
 		TopIssues: top,
 	})

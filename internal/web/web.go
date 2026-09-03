@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"time"
 
-	"faulthub/internal/charts"
 	"faulthub/internal/keygen"
 	"faulthub/internal/ratelimit"
 	"faulthub/internal/store"
@@ -32,11 +31,11 @@ var funcMap = template.FuncMap{
 		return template.HTML(`<time datetime="` + utc.Format(time.RFC3339) + `">` +
 			utc.Format("Jan 2, 2006 15:04 UTC") + `</time>`)
 	},
-	"chartBars": func(counts []store.Count) template.HTML {
-		return charts.Bars(toBars(counts), 500, 8*36)
+	"chartLabels": func(counts []store.Count) string {
+		return chartLabels(counts)
 	},
-	"chartPie": func(counts []store.Count) template.HTML {
-		return charts.Donut(toBars(counts), 500, 200)
+	"chartValues": func(counts []store.Count) string {
+		return chartValues(counts)
 	},
 }
 

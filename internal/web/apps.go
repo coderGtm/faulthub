@@ -1,7 +1,6 @@
 package web
 
 import (
-	"html/template"
 	"net/http"
 	"strings"
 
@@ -77,7 +76,7 @@ type appDetailData struct {
 	baseData
 	App       store.App
 	Stats     store.AppStats
-	Chart     template.HTML
+	Trend     []store.Count
 	ByVersion []store.Count
 	ByAndroid []store.Count
 	ByDevice  []store.Count
@@ -111,7 +110,7 @@ func (s *Server) renderAppDetail(w http.ResponseWriter, r *http.Request, newKey 
 		baseData:  baseData{Title: app.Name, Authed: true, CSRF: s.csrfToken(r)},
 		App:       app,
 		Stats:     stats,
-		Chart:     lineChart(dayCounts, 900, 240),
+		Trend:     dayCounts,
 		ByVersion: byVersion,
 		ByAndroid: byAndroid,
 		ByDevice:  byDevice,

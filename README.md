@@ -14,6 +14,10 @@ dashboard for browsing and managing crash reports across multiple apps.
 - Per-app API keys (created/rotated from the UI, stored as SHA-256 hashes).
 - Per-IP token-bucket rate limiting on ingest and login.
 - One static binary, pure-Go SQLite, `scratch` Docker image, no Node/npm.
+  Charts use a single vendored Chart.js file
+  (`internal/web/static/chart.umd.min.js`, v4.5.1) served same-origin —
+  no CDN, no build step. To update it, download the pinned UMD build,
+  verify the banner version, and record the new sha256 here.
 
 ## Quick start
 

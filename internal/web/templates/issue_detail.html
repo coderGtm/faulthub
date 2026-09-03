@@ -26,7 +26,7 @@
 	</form>
 </p>
 
-<div class="card"><h2>Reports per day (last 30)</h2>{{.Chart}}</div>
+<div class="card"><h2>Reports per day (last 30)</h2>{{if .Trend}}<div class="chart-box"><canvas class="chartjs" data-kind="line" data-labels="{{chartLabels .Trend}}" data-values="{{chartValues .Trend}}" role="img" aria-label="Reports per day"></canvas></div>{{else}}<p class="muted">No crash reports yet.</p>{{end}}</div>
 
 {{if .HasLatest}}
 <div class="card">

@@ -1,7 +1,6 @@
 package web
 
 import (
-	"html/template"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -117,7 +116,7 @@ type issueDetailData struct {
 	baseData
 	App       store.App
 	Issue     store.Issue
-	Chart     template.HTML
+	Trend     []store.Count
 	Latest    store.Report
 	HasLatest bool
 	Reports   []store.Report
@@ -166,7 +165,7 @@ func (s *Server) pageIssueDetail(w http.ResponseWriter, r *http.Request) {
 	s.render(w, http.StatusOK, "issue_detail.html", issueDetailData{
 		baseData: baseData{Title: issue.Title, Authed: true, CSRF: s.csrfToken(r)},
 		App:      app, Issue: issue,
-		Chart:  lineChart(dayCounts, 900, 200),
+		Trend:  dayCounts,
 		Latest: latest, HasLatest: hasLatest,
 		Reports: reports, Total: total, Page: page,
 		PageNums: pageNums(int(total), 25, page),

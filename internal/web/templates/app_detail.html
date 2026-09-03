@@ -23,14 +23,14 @@
 
 <div class="card">
 	<h2>Reports per day (last 30)</h2>
-	{{.Chart}}
+	{{if .Trend}}<div class="chart-box"><canvas class="chartjs" data-kind="line" data-labels="{{chartLabels .Trend}}" data-values="{{chartValues .Trend}}" role="img" aria-label="Reports per day"></canvas></div>{{else}}<p class="muted">No crash reports yet.</p>{{end}}
 </div>
 
 <div class="grid2">
-	<div class="card"><h2>By app version</h2>{{chartBars .ByVersion}}</div>
-	<div class="card"><h2>By Android version</h2>{{chartPie .ByAndroid}}</div>
+	<div class="card"><h2>By app version</h2>{{if .ByVersion}}<div class="chart-box"><canvas class="chartjs" data-kind="bar" data-labels="{{chartLabels .ByVersion}}" data-values="{{chartValues .ByVersion}}" role="img" aria-label="Reports by app version"></canvas></div>{{else}}<p class="muted">No data.</p>{{end}}</div>
+	<div class="card"><h2>By Android version</h2>{{if .ByAndroid}}<div class="chart-box chart-box-sm"><canvas class="chartjs" data-kind="doughnut" data-labels="{{chartLabels .ByAndroid}}" data-values="{{chartValues .ByAndroid}}" role="img" aria-label="Reports by Android version"></canvas></div>{{else}}<p class="muted">No data.</p>{{end}}</div>
 </div>
-<div class="card"><h2>Top devices</h2>{{chartBars .ByDevice}}</div>
+<div class="card"><h2>Top devices</h2>{{if .ByDevice}}<div class="chart-box"><canvas class="chartjs" data-kind="bar" data-labels="{{chartLabels .ByDevice}}" data-values="{{chartValues .ByDevice}}" role="img" aria-label="Reports by device"></canvas></div>{{else}}<p class="muted">No data.</p>{{end}}</div>
 
 <div class="card">
 	<h2>Top issues</h2>

@@ -282,14 +282,9 @@ table.table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 	word-break: break-all;
 	margin-bottom: 12px;
 }
-.chart { width: 100%; height: auto; }
-.chart-line { fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
-.chart-area { fill: var(--accent-soft); stroke: none; }
-.chart-bar { fill: var(--accent); }
-.chart-axis { stroke: var(--border); }
-.chart-grid { stroke: var(--border-soft); stroke-width: 1; }
-.chart-text { fill: var(--muted); font-size: 10px; }
-.chart-dot { fill: var(--accent); stroke: var(--surface); stroke-width: 1.4; }
+.chart-box { position: relative; height: 260px; }
+.chart-box-sm { height: 230px; }
+canvas.chartjs { max-width: 100%; }
 :root, :root[data-theme="light"] {
 	--c1: #3f6ea6;
 	--c2: #3d9a78;

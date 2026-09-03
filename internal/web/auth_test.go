@@ -186,7 +186,7 @@ func TestSecurityHeaders(t *testing.T) {
 
 func TestStaticServed(t *testing.T) {
 	_, h := newServer(t)
-	for _, path := range []string{"/static/app.css", "/static/app.js"} {
+	for _, path := range []string{"/static/app.css", "/static/app.js", "/static/chart.umd.min.js"} {
 		r := httptest.NewRequest("GET", path, nil)
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)

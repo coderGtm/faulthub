@@ -74,7 +74,7 @@ func TestDashboardRenders(t *testing.T) {
 		t.Fatalf("dashboard: %d", w.Code)
 	}
 	body := w.Body.String()
-	for _, want := range []string{"Yantra", "chart-line", "Reports"} {
+	for _, want := range []string{"Yantra", `data-kind="line"`, "Reports"} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("dashboard missing %q", want)
 		}
@@ -125,7 +125,7 @@ func TestAppDetailRenders(t *testing.T) {
 		t.Fatalf("app detail: %d", w.Code)
 	}
 	body := w.Body.String()
-	for _, want := range []string{"Yantra", "chart-bar", "Rotate API key"} {
+	for _, want := range []string{"Yantra", `data-kind="bar"`, `data-kind="doughnut"`, "Rotate API key"} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("app detail missing %q", want)
 		}
