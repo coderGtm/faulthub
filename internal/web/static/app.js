@@ -22,10 +22,10 @@ document.querySelectorAll("time[datetime]:not(.tz-device)").forEach(function (el
 document.querySelectorAll(".tz-local[data-dt]").forEach(function (el) {
 	var d = new Date(el.getAttribute("data-dt"));
 	if (isNaN(d)) return;
-	el.textContent = " (local: " + d.toLocaleString(undefined, {
+	el.textContent = " (" + d.toLocaleString(undefined, {
 		month: "short", day: "numeric", year: "numeric",
 		hour: "2-digit", minute: "2-digit"
-	}) + ")";
+	}) + " local time)";
 });
 function fhThemeColors() {
 	var cs = getComputedStyle(document.documentElement);

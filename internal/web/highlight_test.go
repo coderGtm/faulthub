@@ -20,6 +20,9 @@ func TestParseDeviceTime(t *testing.T) {
 		{"Thu Sep 3 09:58:00 GMT+05:30 2026", true, "2026-09-03T09:58:00+05:30"},
 		{"Thu Sep 13 09:58:00 GMT-04:00 2026", true, "2026-09-13T09:58:00-04:00"},
 		{"Thu Sep  3 09:58:00 UTC 2026", true, "2026-09-03T09:58:00Z"},
+		{"2026-09-03T21:34:26.252+05:30", true, "2026-09-03T21:34:26+05:30"},
+		{"2026-09-03T21:34:26+05:30", true, "2026-09-03T21:34:26+05:30"},
+		{"2026-09-03T16:04:26.252Z", true, "2026-09-03T16:04:26Z"},
 		{"garbage", false, ""},
 		{"", false, ""},
 	}
@@ -42,7 +45,7 @@ func TestFmtDeviceTime(t *testing.T) {
 	if !strings.Contains(out, `<time class="tz-device" datetime="2026-09-03T09:58:00+05:30">`) {
 		t.Fatalf("missing time tag: %s", out)
 	}
-	if !strings.Contains(out, "Sep 3, 2026 09:58 GMT+05:30") {
+	if !strings.Contains(out, "Sep 3, 2026, 09:58 AM") {
 		t.Fatalf("missing device text: %s", out)
 	}
 	if !strings.Contains(out, `class="tz-local" data-dt="2026-09-03T09:58:00+05:30"`) {
@@ -156,7 +159,7 @@ func TestReportDetailRendersHighlighting(t *testing.T) {
 		`<span class="tok-ex">java.lang.NullPointerException: boom</span>`,
 		`<span class="tok-fn">com.example.app.MainActivity.onCreate</span>`,
 		`<span class="tok-key">`,
-		`Sep 3, 2026 09:58 GMT+05:30`,
+		`Sep 3, 2026, 09:58 AM`,
 		`class="tz-local" data-dt="2026-09-03T09:58:00+05:30"`,
 		`class="tz-device"`,
 	} {

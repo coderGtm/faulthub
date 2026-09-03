@@ -8,19 +8,25 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"html"
 	"html/template"
 	"strings"
 	"time"
 )
 
-// parseDeviceTime parses ACRA device-clock dates such as
-// "Thu Sep  3 09:58:00 GMT+05:30 2026". The GMT±hh:mm zone is not understood
+// parseDeviceTime parses device-clock dates: ACRA's
+// "Thu Sep  3 09:58:00 GMT+05:30 2026" as well as ISO-8601
+// ("2026-09-03T21:34:26.252+05:30"). The GMT±hh:mm zone is not understood
 // by Go's MST layout, so the GMT prefix is stripped before parsing.
 func parseDeviceTime(s string) (time.Time, bool) {
-	if t, err := time.Parse("Mon Jan _2 15:04:05 MST 2006", s); err == nil {
-		return t, true
+	for _, layout := range []string{
+		time.RFC3339Nano,
+		"2006-01-02T15:04:05.999999999-0700",
+		"Mon Jan _2 15:04:05 MST 2006",
+	} {
+		if t, err := time.Parse(layout, s); err == nil {
+			return t, true
+		}
 	}
 	n := strings.ReplaceAll(strings.ReplaceAll(s, "GMT+", "+"), "GMT-", "-")
 	for _, layout := range []string{
@@ -34,9 +40,9 @@ func parseDeviceTime(s string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
-// fmtDeviceTime renders an ACRA device-clock date like the received time
-// ("Sep 3, 2026 09:58 GMT+05:30") plus a placeholder span that client-side JS
-// fills with the browser-local equivalent (" (local: …)"). Unparseable input
+// fmtDeviceTime renders a device-clock date as "Sep 3, 2026, 09:34 PM"
+// plus a placeholder span that client-side JS fills with the browser-local
+// equivalent (" (Sep 3, 2026, 07:34 PM local time)"). Unparseable input
 // falls back to escaped raw text.
 func fmtDeviceTime(s string) template.HTML {
 	if strings.TrimSpace(s) == "" {
@@ -46,16 +52,7 @@ func fmtDeviceTime(s string) template.HTML {
 	if !ok {
 		return template.HTML(html.EscapeString(s))
 	}
-	zone := "UTC"
-	if _, off := t.Zone(); off != 0 {
-		sign := "+"
-		if off < 0 {
-			sign = "-"
-			off = -off
-		}
-		zone = fmt.Sprintf("GMT%s%02d:%02d", sign, off/3600, (off%3600)/60)
-	}
-	text := t.Format("Jan 2, 2006 15:04 ") + zone
+	text := t.Format("Jan 2, 2006, 03:04 PM")
 	rfc := t.Format(time.RFC3339)
 	var b strings.Builder
 	b.WriteString(`<time class="tz-device" datetime="`)
