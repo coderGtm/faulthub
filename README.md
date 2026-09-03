@@ -27,6 +27,10 @@ Generate the admin password hash:
     docker compose exec faulthub /faulthub hash-password
     # or locally: go run ./cmd/faulthub hash-password
 
+Note: when pasting a generated `$argon2id$...` hash into `.env`, every `$`
+must be escaped as `$$` (Compose interpolates `.env` values), or export the
+variable in the shell instead.
+
 ## ACRA client configuration
 
 In the Android app's `local.properties`:
