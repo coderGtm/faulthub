@@ -1,0 +1,44 @@
+{{define "content"}}
+<h1>Overview</h1>
+
+<div class="card">
+	<h2>Reports per day (last 30)</h2>
+	{{.Chart}}
+</div>
+
+<div class="card">
+	<h2>Apps</h2>
+	{{if .Overview}}
+	<table class="table">
+		<tr><th>App</th><th>Reports</th><th>Open issues</th><th>Last report</th></tr>
+		{{range .Overview}}
+		<tr>
+			<td><a href="/apps/{{.App.ID}}">{{.App.Name}}</a></td>
+			<td>{{.Reports}}</td>
+			<td>{{.OpenIssues}}</td>
+			<td>{{fmtTime .LastReportAt}}</td>
+		</tr>
+		{{end}}
+	</table>
+	{{else}}<p class="muted">No apps yet. <a href="/apps">Create one</a>.</p>{{end}}
+</div>
+
+<div class="card">
+	<h2>Top issues across apps</h2>
+	{{if .TopIssues}}
+	<table class="table">
+		<tr><th>Issue</th><th>App</th><th>Reports</th><th>Installs</th><th>Status</th><th>Last seen</th></tr>
+		{{range .TopIssues}}
+		<tr>
+			<td><a href="/apps/{{.AppID}}/issues/{{.ID}}">{{.Title}}</a></td>
+			<td>{{.AppName}}</td>
+			<td>{{.ReportCount}}</td>
+			<td>{{.InstallCount}}</td>
+			<td><span class="badge badge-{{.Status}}">{{.Status}}</span></td>
+			<td>{{fmtTime .LastSeenAt}}</td>
+		</tr>
+		{{end}}
+	</table>
+	{{else}}<p class="muted">No crash reports yet.</p>{{end}}
+</div>
+{{end}}

@@ -1,0 +1,62 @@
+{{define "content"}}
+<h1>{{.App.Name}}</h1>
+
+{{if .NewKey}}
+<div class="card">
+	<h2>API key rotated</h2>
+	<p>Shown once — copy it now. The old key is already invalid.</p>
+	<div class="key-display">{{.NewKey}}</div>
+	<button class="btn" data-copy="{{.NewKey}}" type="button">Copy</button>
+</div>
+{{end}}
+
+<div class="card">
+	<div class="stat"><b>{{.Stats.Reports}}</b><span class="muted">reports</span></div>
+	<div class="stat"><b>{{.Stats.OpenIssues}}</b><span class="muted">open issues</span></div>
+	<div class="stat"><b>{{.Stats.ResolvedIssues}}</b><span class="muted">resolved</span></div>
+	<div class="stat"><b>{{.Stats.Installs}}</b><span class="muted">installs seen</span></div>
+	<div class="stat"><b>{{fmtTime .Stats.LastReportAt}}</b><span class="muted">last report</span></div>
+	<p><a href="/apps/{{.App.ID}}/issues">All issues →</a></p>
+</div>
+
+<div class="card">
+	<h2>Reports per day (last 30)</h2>
+	{{.Chart}}
+</div>
+
+<div class="grid2">
+	<div class="card"><h2>By app version</h2>{{chartBars .ByVersion}}</div>
+	<div class="card"><h2>By Android version</h2>{{chartBars .ByAndroid}}</div>
+</div>
+<div class="card"><h2>Top devices</h2>{{chartBars .ByDevice}}</div>
+
+<div class="card">
+	<h2>Top issues</h2>
+	{{if .TopIssues}}
+	<table class="table">
+		<tr><th>Issue</th><th>Reports</th><th>Installs</th><th>Status</th><th>Last seen</th></tr>
+		{{range .TopIssues}}
+		<tr>
+			<td><a href="/apps/{{.AppID}}/issues/{{.ID}}">{{.Title}}</a></td>
+			<td>{{.ReportCount}}</td>
+			<td>{{.InstallCount}}</td>
+			<td><span class="badge badge-{{.Status}}">{{.Status}}</span></td>
+			<td>{{fmtTime .LastSeenAt}}</td>
+		</tr>
+		{{end}}
+	</table>
+	{{else}}<p class="muted">No issues yet.</p>{{end}}
+</div>
+
+<div class="card danger-zone">
+	<h2>Danger zone</h2>
+	<form method="post" action="/apps/{{.App.ID}}/rotate-key" class="inline">
+		<input type="hidden" name="csrf" value="{{.CSRF}}">
+		<button class="btn" type="submit">Rotate API key</button>
+	</form>
+	<form method="post" action="/apps/{{.App.ID}}/delete" class="inline" data-confirm="Delete this app and ALL its crash data?">
+		<input type="hidden" name="csrf" value="{{.CSRF}}">
+		<button class="btn btn-danger" type="submit">Delete app</button>
+	</form>
+</div>
+{{end}}

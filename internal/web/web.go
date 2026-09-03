@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"faulthub/internal/charts"
 	"faulthub/internal/keygen"
 	"faulthub/internal/ratelimit"
 	"faulthub/internal/store"
@@ -17,7 +18,7 @@ import (
 //go:embed templates/*.html static/*
 var assets embed.FS
 
-var pageNames = []string{"login.html"}
+var pageNames = []string{"login.html", "dashboard.html", "apps.html", "app_detail.html"}
 
 var funcMap = template.FuncMap{
 	"fmtTime": func(t time.Time) string {
@@ -25,6 +26,9 @@ var funcMap = template.FuncMap{
 			return "—"
 		}
 		return t.UTC().Format("Jan 2, 2006 15:04 UTC")
+	},
+	"chartBars": func(counts []store.Count) template.HTML {
+		return charts.Bars(toBars(counts), 500, 8*36)
 	},
 }
 
@@ -112,6 +116,12 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /login", s.pageLogin)
 	mux.HandleFunc("POST /login", s.submitLogin)
 	mux.HandleFunc("POST /logout", s.requireAuth(s.submitLogout))
+	mux.HandleFunc("GET /{$}", s.requireAuth(s.pageDashboard))
+	mux.HandleFunc("GET /apps", s.requireAuth(s.pageApps))
+	mux.HandleFunc("POST /apps", s.requireAuth(s.submitCreateApp))
+	mux.HandleFunc("GET /apps/{id}", s.requireAuth(s.pageAppDetail))
+	mux.HandleFunc("POST /apps/{id}/rotate-key", s.requireAuth(s.submitRotateKey))
+	mux.HandleFunc("POST /apps/{id}/delete", s.requireAuth(s.submitDeleteApp))
 	return s.secureHeaders(mux)
 }
 

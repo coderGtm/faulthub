@@ -1,0 +1,39 @@
+{{define "content"}}
+<h1>Apps</h1>
+
+{{if .NewKey}}
+<div class="card">
+	<h2>App "{{.NewAppName}}" created</h2>
+	<p>API key (shown once — copy it now):</p>
+	<div class="key-display">{{.NewKey}}</div>
+	<button class="btn" data-copy="{{.NewKey}}" type="button">Copy</button>
+</div>
+{{end}}
+{{if .Error}}<div class="alert alert-error">{{.Error}}</div>{{end}}
+
+<div class="card">
+	<h2>Create app</h2>
+	<form method="post" action="/apps">
+		<input type="hidden" name="csrf" value="{{.CSRF}}">
+		<input type="text" name="name" placeholder="App name (e.g. Yantra)" maxlength="64" required>
+		<button class="btn" type="submit">Create</button>
+	</form>
+</div>
+
+<div class="card">
+	{{if .Overview}}
+	<table class="table">
+		<tr><th>App</th><th>Created</th><th>Reports</th><th>Open issues</th><th>Last report</th></tr>
+		{{range .Overview}}
+		<tr>
+			<td><a href="/apps/{{.App.ID}}">{{.App.Name}}</a></td>
+			<td>{{fmtTime .App.CreatedAt}}</td>
+			<td>{{.Reports}}</td>
+			<td>{{.OpenIssues}}</td>
+			<td>{{fmtTime .LastReportAt}}</td>
+		</tr>
+		{{end}}
+	</table>
+	{{else}}<p class="muted">No apps yet.</p>{{end}}
+</div>
+{{end}}
