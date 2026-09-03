@@ -15,8 +15,8 @@
 		<tr><th>Device</th><td>{{.Report.Brand}} {{.Report.PhoneModel}} ({{.Report.Product}})</td></tr>
 		{{if .Report.ThreadDisplay}}<tr><th>Thread</th><td>{{.Report.ThreadDisplay}}</td></tr>{{end}}
 		<tr><th>Installation</th><td>{{.Report.InstallationID}}</td></tr>
-		<tr><th>App start (device clock)</th><td>{{.Report.UserAppStartDate}}</td></tr>
-		<tr><th>Crash (device clock)</th><td>{{.Report.UserCrashDate}}</td></tr>
+		<tr><th>App start (device clock)</th><td>{{fmtDeviceTime .Report.UserAppStartDate}}</td></tr>
+		<tr><th>Crash (device clock)</th><td>{{fmtDeviceTime .Report.UserCrashDate}}</td></tr>
 		<tr><th>Received (server)</th><td>{{fmtTime .Report.ReceivedAt}}</td></tr>
 		{{if .Report.UserComment}}<tr><th>User comment</th><td>{{.Report.UserComment}}</td></tr>{{end}}
 		{{if .Report.UserEmail}}<tr><th>User email (PII)</th><td>{{.Report.UserEmail}}</td></tr>{{end}}
@@ -26,12 +26,14 @@
 
 <div class="card">
 	<h2>Stack trace</h2>
-	<div class="pre">{{.Report.StackTrace}}</div>
+	<div class="pre">{{hlStack .Report.StackTrace}}</div>
 </div>
 
 <div class="card">
-	<h2>Raw report</h2>
-	<div class="pre">{{.Report.Raw}}</div>
+	<details class="raw-details">
+		<summary><span class="summary-title">Raw report</span><span class="details-arrow" aria-hidden="true"></span></summary>
+		<div class="pre">{{hlJSON .Report.Raw}}</div>
+	</details>
 </div>
 
 <form method="post" action="/apps/{{.App.ID}}/reports/{{.Report.ID}}/delete" data-confirm="Delete this report (incl. its user email)?">

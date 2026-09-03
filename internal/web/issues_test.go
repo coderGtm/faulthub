@@ -77,7 +77,7 @@ func TestIssueDetailAndStatus(t *testing.T) {
 		t.Fatalf("issue detail: %d", w.Code)
 	}
 	body := w.Body.String()
-	for _, want := range []string{"java.lang.NullPointerException", "Pixel 8", "report"} {
+	for _, want := range []string{"java.lang.NullPointerException", "Pixel 8", "report", `<span class="tok-ex">`, `<span class="tok-fn">`} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("issue detail missing %q", want)
 		}

@@ -37,6 +37,9 @@ var funcMap = template.FuncMap{
 	"chartValues": func(counts []store.Count) string {
 		return chartValues(counts)
 	},
+	"fmtDeviceTime": func(s string) template.HTML { return fmtDeviceTime(s) },
+	"hlStack":       func(s string) template.HTML { return hlStack(s) },
+	"hlJSON":        func(s string) template.HTML { return hlJSON(s) },
 }
 
 const (

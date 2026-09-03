@@ -17,6 +17,14 @@
 	--resolved-bg: #e3f2e7;
 	--resolved-fg: #2c7a4b;
 	--code-bg: #eef1f6;
+	--tok-key: #0550ae;
+	--tok-str: #0a3069;
+	--tok-num: #953800;
+	--tok-bool: #8250df;
+	--tok-null: #57606a;
+	--tok-ex: #cf222e;
+	--tok-fn: #8250df;
+	--tok-loc: #57606a;
 	--chart-line: #2e6be6;
 	--chart-fill: #dfe9fb;
 	--shadow: 0 1px 2px rgba(34, 48, 65, 0.05), 0 4px 16px rgba(34, 48, 65, 0.06);
@@ -42,6 +50,14 @@
 	--resolved-bg: #17332a;
 	--resolved-fg: #6fd3a0;
 	--code-bg: #0d1117;
+	--tok-key: #79c0ff;
+	--tok-str: #a5d6ff;
+	--tok-num: #ffa657;
+	--tok-bool: #d2a8ff;
+	--tok-null: #8b949e;
+	--tok-ex: #ff7b72;
+	--tok-fn: #d2a8ff;
+	--tok-loc: #8b949e;
 	--chart-line: #7ba3d4;
 	--chart-fill: #1f2c40;
 	--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.28);
@@ -66,6 +82,14 @@
 		--resolved-bg: #17332a;
 		--resolved-fg: #6fd3a0;
 	--code-bg: #0d1117;
+	--tok-key: #79c0ff;
+	--tok-str: #a5d6ff;
+	--tok-num: #ffa657;
+	--tok-bool: #d2a8ff;
+	--tok-null: #8b949e;
+	--tok-ex: #ff7b72;
+	--tok-fn: #d2a8ff;
+	--tok-loc: #8b949e;
 	--chart-line: #7ba3d4;
 	--chart-fill: #1f2c40;
 		--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.28);
@@ -210,6 +234,38 @@ table.table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 	max-height: 480px;
 	overflow: auto;
 }
+.tz-local { color: var(--muted); white-space: nowrap; }
+.raw-details summary {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	list-style: none;
+}
+.raw-details summary::-webkit-details-marker { display: none; }
+.raw-details .summary-title {
+	font-size: 16.5px;
+	font-weight: 650;
+	letter-spacing: -0.01em;
+}
+.raw-details .details-arrow::before {
+	content: "▸";
+	color: var(--muted);
+	font-size: 14px;
+	transition: transform 0.15s ease;
+	display: inline-block;
+}
+.raw-details[open] .details-arrow::before { transform: rotate(90deg); }
+.raw-details .pre { margin-top: 12px; }
+.tok-key { color: var(--tok-key); }
+.tok-str { color: var(--tok-str); }
+.tok-num { color: var(--tok-num); }
+.tok-bool { color: var(--tok-bool); }
+.tok-null { color: var(--tok-null); }
+.tok-ex { color: var(--tok-ex); font-weight: 600; }
+.tok-frame { color: var(--muted); }
+.tok-fn { color: var(--tok-fn); }
+.tok-loc { color: var(--tok-loc); }
 .btn {
 	background: var(--accent);
 	color: #fff;

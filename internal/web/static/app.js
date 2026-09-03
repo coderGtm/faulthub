@@ -11,13 +11,21 @@ document.addEventListener("submit", function (e) {
 	var f = e.target.closest("form[data-confirm]");
 	if (f && !window.confirm(f.dataset.confirm)) e.preventDefault();
 });
-document.querySelectorAll("time[datetime]").forEach(function (el) {
+document.querySelectorAll("time[datetime]:not(.tz-device)").forEach(function (el) {
 	var d = new Date(el.getAttribute("datetime"));
 	if (isNaN(d)) return;
 	el.textContent = d.toLocaleString(undefined, {
 		month: "short", day: "numeric", year: "numeric",
 		hour: "2-digit", minute: "2-digit"
 	});
+});
+document.querySelectorAll(".tz-local[data-dt]").forEach(function (el) {
+	var d = new Date(el.getAttribute("data-dt"));
+	if (isNaN(d)) return;
+	el.textContent = " (local: " + d.toLocaleString(undefined, {
+		month: "short", day: "numeric", year: "numeric",
+		hour: "2-digit", minute: "2-digit"
+	}) + ")";
 });
 function fhThemeColors() {
 	var cs = getComputedStyle(document.documentElement);

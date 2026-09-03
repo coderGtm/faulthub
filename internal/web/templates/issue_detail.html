@@ -31,7 +31,7 @@
 {{if .HasLatest}}
 <div class="card">
 	<h2>Latest stack trace</h2>
-	<div class="pre">{{.Latest.StackTrace}}</div>
+	<div class="pre">{{hlStack .Latest.StackTrace}}</div>
 	<p class="muted">From report <a href="/apps/{{.App.ID}}/reports/{{.Latest.ID}}">{{.Latest.ID}}</a> · {{fmtTime .Latest.ReceivedAt}}</p>
 </div>
 {{end}}
