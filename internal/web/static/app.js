@@ -23,11 +23,14 @@ function fhThemeColors() {
 	var cs = getComputedStyle(document.documentElement);
 	var get = function (n) { return cs.getPropertyValue(n).trim(); };
 	return {
-		muted: get("--muted"), border: get("--border"),
-		accent: get("--accent"), soft: get("--accent-soft"),
-		line: get("--chart-line") || get("--accent"),
-		fill: get("--chart-fill") || get("--accent-soft"),
-		palette: [get("--c1"), get("--c2"), get("--c3"), get("--c4"), get("--c5"), get("--c6")]
+		muted: get("--muted") || "#67758a", border: get("--border") || "#e2e7ef",
+		accent: get("--accent") || "#3f6ea6", soft: get("--accent-soft") || "#e7eff8",
+		line: get("--chart-line") || "#2e6be6",
+		fill: get("--chart-fill") || "#dfe9fb",
+		palette: [
+			get("--c1") || "#3f6ea6", get("--c2") || "#3d9a78", get("--c3") || "#c08c2e",
+			get("--c4") || "#8a6fc0", get("--c5") || "#c65f7d", get("--c6") || "#7b8ba1"
+		]
 	};
 }
 function fhBuildCharts() {
@@ -83,10 +86,10 @@ function fhBuildCharts() {
 		new window.Chart(cv, cfg);
 	});
 }
-if (document.readyState === "loading") {
-	document.addEventListener("DOMContentLoaded", fhBuildCharts);
-} else {
+if (document.readyState === "complete") {
 	fhBuildCharts();
+} else {
+	window.addEventListener("load", fhBuildCharts);
 }
 (function () {
 	var root = document.documentElement;
