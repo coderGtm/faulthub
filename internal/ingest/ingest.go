@@ -90,6 +90,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		hash = NoTraceHash
 	}
 	packageName := str(body, "PACKAGE_NAME")
+	threadID, threadName, threadPriority, threadGroup := parseThreadDetails(body["THREAD_DETAILS"])
 
 	rep := &store.Report{
 		ID:               reportID,
@@ -102,8 +103,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Brand:            str(body, "BRAND"),
 		PhoneModel:       str(body, "PHONE_MODEL"),
 		Product:          str(body, "PRODUCT"),
-		Build:            str(body, "BUILD"),
-		ThreadDetails:    str(body, "THREAD_DETAILS"),
+		ThreadID:         threadID,
+		ThreadName:       threadName,
+		ThreadPriority:   threadPriority,
+		ThreadGroup:      threadGroup,
 		StackTrace:       trace,
 		StackTraceHash:   hash,
 		Title:            TitleFromTrace(trace, packageName),
@@ -132,6 +135,10 @@ func str(m map[string]any, key string) string {
 	if !ok {
 		return ""
 	}
+	return stringify(v)
+}
+
+func stringify(v any) string {
 	switch t := v.(type) {
 	case nil:
 		return ""
@@ -144,8 +151,82 @@ func str(m map[string]any, key string) string {
 			return fmt.Sprintf("%d", int64(t))
 		}
 		return fmt.Sprintf("%g", t)
+	case json.Number:
+		return t.String()
+	case int:
+		return strconv.Itoa(t)
+	case int64:
+		return strconv.FormatInt(t, 10)
 	default:
 		return ""
+	}
+}
+
+// parseThreadDetails decodes THREAD_DETAILS, which ACRA sends as a nested
+// object: {"id": int, "name": string, "priority": int, "groupName": string}.
+// Missing/null input yields zeros. A legacy plain-string value is tolerated
+// by storing it as the thread name so no data is lost.
+func parseThreadDetails(v any) (id int, name string, priority int, group string) {
+	if v == nil {
+		return 0, "", 0, ""
+	}
+	if s, ok := v.(string); ok {
+		return 0, s, 0, ""
+	}
+	obj, ok := v.(map[string]any)
+	if !ok {
+		return 0, "", 0, ""
+	}
+	return toInt(obj["id"]), stringify(obj["name"]), toInt(obj["priority"]), stringify(obj["groupName"])
+}
+
+func toInt(v any) int {
+	switch t := v.(type) {
+	case nil:
+		return 0
+	case int:
+		return t
+	case int8:
+		return int(t)
+	case int16:
+		return int(t)
+	case int32:
+		return int(t)
+	case int64:
+		return int(t)
+	case uint:
+		return int(t)
+	case uint8:
+		return int(t)
+	case uint16:
+		return int(t)
+	case uint32:
+		return int(t)
+	case uint64:
+		return int(t)
+	case float32:
+		return int(t)
+	case float64:
+		return int(t)
+	case json.Number:
+		if i, err := t.Int64(); err == nil {
+			return int(i)
+		}
+		return 0
+	case string:
+		s := strings.TrimSpace(t)
+		if s == "" {
+			return 0
+		}
+		if i, err := strconv.Atoi(s); err == nil {
+			return i
+		}
+		if f, err := strconv.ParseFloat(s, 64); err == nil {
+			return int(f)
+		}
+		return 0
+	default:
+		return 0
 	}
 }
 

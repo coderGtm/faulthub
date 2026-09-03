@@ -204,8 +204,9 @@ func (s *Store) DeleteIssue(ctx context.Context, appID, issueID int64) error {
 }
 
 const reportCols = `id, app_id, issue_id, installation_id, package_name, app_version_code,
-	app_version_name, android_version, brand, phone_model, product, build_fingerprint,
-	thread_details, stack_trace, stack_trace_hash, user_comment, user_email,
+	app_version_name, android_version, brand, phone_model, product,
+	thread_id, thread_name, thread_priority, thread_group,
+	stack_trace, stack_trace_hash, user_comment, user_email,
 	user_app_start_date, user_crash_date, received_at, raw`
 
 func scanReport(row scanner) (Report, error) {
@@ -213,7 +214,8 @@ func scanReport(row scanner) (Report, error) {
 	var received string
 	err := row.Scan(&r.ID, &r.AppID, &r.IssueID, &r.InstallationID, &r.PackageName,
 		&r.AppVersionCode, &r.AppVersionName, &r.AndroidVersion, &r.Brand, &r.PhoneModel,
-		&r.Product, &r.Build, &r.ThreadDetails, &r.StackTrace, &r.StackTraceHash,
+		&r.Product, &r.ThreadID, &r.ThreadName, &r.ThreadPriority, &r.ThreadGroup,
+		&r.StackTrace, &r.StackTraceHash,
 		&r.UserComment, &r.UserEmail, &r.UserAppStartDate, &r.UserCrashDate,
 		&received, &r.Raw)
 	if err != nil {

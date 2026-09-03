@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"strconv"
 	"time"
 )
 
@@ -17,8 +18,10 @@ type Report struct {
 	Brand            string
 	PhoneModel       string
 	Product          string
-	Build            string
-	ThreadDetails    string
+	ThreadID         int
+	ThreadName       string
+	ThreadPriority   int
+	ThreadGroup      string
 	StackTrace       string
 	StackTraceHash   string
 	Title            string
@@ -29,6 +32,41 @@ type Report struct {
 	ReceivedAt       time.Time
 	Raw              string
 }
+
+// ThreadDisplay renders the failing thread as "name (id=X, priority=Y, group=Z)",
+// omitting parts that are absent. Empty when no thread info was reported.
+func (r Report) ThreadDisplay() string {
+	if r.ThreadName == "" && r.ThreadID == 0 && r.ThreadPriority == 0 && r.ThreadGroup == "" {
+		return ""
+	}
+	s := r.ThreadName
+	if s == "" {
+		s = "(unknown)"
+	}
+	meta := ""
+	if r.ThreadID != 0 || r.ThreadPriority != 0 || r.ThreadGroup != "" {
+		parts := ""
+		if r.ThreadID != 0 {
+			parts = "id=" + itoa(r.ThreadID)
+		}
+		if r.ThreadPriority != 0 {
+			if parts != "" {
+				parts += ", "
+			}
+			parts += "priority=" + itoa(r.ThreadPriority)
+		}
+		if r.ThreadGroup != "" {
+			if parts != "" {
+				parts += ", "
+			}
+			parts += "group=" + r.ThreadGroup
+		}
+		meta = " (" + parts + ")"
+	}
+	return s + meta
+}
+
+func itoa(n int) string { return strconv.Itoa(n) }
 
 func (s *Store) IngestReport(ctx context.Context, r *Report) (bool, error) {
 	tx, err := s.db.BeginTx(ctx, nil)
@@ -65,13 +103,15 @@ func (s *Store) IngestReport(ctx context.Context, r *Report) (bool, error) {
 		INSERT OR IGNORE INTO reports (
 			id, app_id, issue_id, installation_id, package_name, app_version_code,
 			app_version_name, android_version, brand, phone_model, product,
-			build_fingerprint, thread_details, stack_trace, stack_trace_hash,
+			thread_id, thread_name, thread_priority, thread_group,
+			stack_trace, stack_trace_hash,
 			user_comment, user_email, user_app_start_date, user_crash_date,
 			received_at, raw
-		) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 		r.ID, r.AppID, issueID, r.InstallationID, r.PackageName, r.AppVersionCode,
 		r.AppVersionName, r.AndroidVersion, r.Brand, r.PhoneModel, r.Product,
-		r.Build, r.ThreadDetails, r.StackTrace, r.StackTraceHash, r.UserComment,
+		r.ThreadID, r.ThreadName, r.ThreadPriority, r.ThreadGroup,
+		r.StackTrace, r.StackTraceHash, r.UserComment,
 		r.UserEmail, r.UserAppStartDate, r.UserCrashDate, nowStr, r.Raw)
 	if err != nil {
 		return false, err

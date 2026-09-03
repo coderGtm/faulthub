@@ -26,14 +26,13 @@ const samplePayload = `{
   "BRAND": "google",
   "PHONE_MODEL": "Pixel 8",
   "PRODUCT": "shiba",
-  "BUILD": "google/shiba/shiba:14/AP2A.240505.004/11637015:user/release-keys",
   "STACK_TRACE": "java.lang.NullPointerException: boom\n\tat android.app.Activity.onCreate(Activity.java)\n\tat com.coderGtm.yantra.MainActivity.onCreate(MainActivity.kt:42)",
   "STACK_TRACE_HASH": "9f8e7d6c5b4a39281706f5e4d3c2b1a0",
   "USER_COMMENT": "happened right after I opened settings",
   "USER_EMAIL": "user@example.com",
   "USER_APP_START_DATE": "Thu Sep  3 09:58:00 GMT+05:30 2026",
   "USER_CRASH_DATE": "Thu Sep  3 10:00:21 GMT+05:30 2026",
-  "THREAD_DETAILS": "main (id=1, group=main)"
+  "THREAD_DETAILS": {"id": 2, "name": "main", "priority": 5, "groupName": "java.lang.ThreadGroup[name=main,maxpri=10]"}
 }`
 
 const reportID = "3f2d7c0e-1a2b-4c3d-9e8f-0a1b2c3d4e5f"
@@ -85,6 +84,13 @@ func TestIngestSample(t *testing.T) {
 	}
 	if rep.UserEmail != "user@example.com" || rep.PhoneModel != "Pixel 8" || rep.Raw == "" || rep.ReceivedAt.IsZero() {
 		t.Fatalf("stored report wrong: %+v", rep)
+	}
+	if rep.ThreadID != 2 || rep.ThreadName != "main" || rep.ThreadPriority != 5 ||
+		rep.ThreadGroup != "java.lang.ThreadGroup[name=main,maxpri=10]" {
+		t.Fatalf("thread fields wrong: %+v", rep)
+	}
+	if got := rep.ThreadDisplay(); got != "main (id=2, priority=5, group=java.lang.ThreadGroup[name=main,maxpri=10])" {
+		t.Fatalf("thread display = %q", got)
 	}
 	if !strings.Contains(rep.Raw, reportID) {
 		t.Fatal("raw must be the original body")
@@ -201,6 +207,52 @@ func TestIngestNoStackTrace(t *testing.T) {
 	issues, total, _ := h.Store.ListIssues(t.Context(), store.IssueFilter{AppID: 1})
 	if total != 1 || issues[0].Title != "(no stack trace)" {
 		t.Fatalf("issues: %+v", issues)
+	}
+}
+
+func TestIngestThreadDetails(t *testing.T) {
+	h := newHandler(t)
+
+	// Missing THREAD_DETAILS → zeros.
+	body := strings.Replace(samplePayload,
+		",\n  \"THREAD_DETAILS\": {\"id\": 2, \"name\": \"main\", \"priority\": 5, \"groupName\": \"java.lang.ThreadGroup[name=main,maxpri=10]\"}",
+		``, 1)
+	body = strings.Replace(body, reportID, "thread-missing", 1)
+	if w := do(t, h, body, nil); w.Code != 201 {
+		t.Fatalf("missing thread: %d body=%s", w.Code, w.Body.String())
+	}
+	rep, _ := h.Store.GetReport(t.Context(), 1, "thread-missing")
+	if rep.ThreadID != 0 || rep.ThreadName != "" || rep.ThreadPriority != 0 || rep.ThreadGroup != "" {
+		t.Fatalf("missing thread must store zeros: %+v", rep)
+	}
+	if rep.ThreadDisplay() != "" {
+		t.Fatalf("empty thread display must be empty: %q", rep.ThreadDisplay())
+	}
+
+	// Null THREAD_DETAILS → zeros.
+	body = strings.Replace(samplePayload,
+		`"THREAD_DETAILS": {"id": 2, "name": "main", "priority": 5, "groupName": "java.lang.ThreadGroup[name=main,maxpri=10]"}`,
+		`"THREAD_DETAILS": null`, 1)
+	body = strings.Replace(body, reportID, "thread-null", 1)
+	if w := do(t, h, body, nil); w.Code != 201 {
+		t.Fatalf("null thread: %d", w.Code)
+	}
+	rep, _ = h.Store.GetReport(t.Context(), 1, "thread-null")
+	if rep.ThreadName != "" || rep.ThreadID != 0 {
+		t.Fatalf("null thread must store zeros: %+v", rep)
+	}
+
+	// Partial object → only present fields.
+	body = strings.Replace(samplePayload,
+		`"THREAD_DETAILS": {"id": 2, "name": "main", "priority": 5, "groupName": "java.lang.ThreadGroup[name=main,maxpri=10]"}`,
+		`"THREAD_DETAILS": {"name": "Binder:123_4"}`, 1)
+	body = strings.Replace(body, reportID, "thread-partial", 1)
+	if w := do(t, h, body, nil); w.Code != 201 {
+		t.Fatalf("partial thread: %d", w.Code)
+	}
+	rep, _ = h.Store.GetReport(t.Context(), 1, "thread-partial")
+	if rep.ThreadName != "Binder:123_4" || rep.ThreadID != 0 || rep.ThreadPriority != 0 || rep.ThreadGroup != "" {
+		t.Fatalf("partial thread wrong: %+v", rep)
 	}
 }
 

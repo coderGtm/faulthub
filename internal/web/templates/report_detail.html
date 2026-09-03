@@ -13,8 +13,7 @@
 		<tr><th>App version</th><td>{{.Report.AppVersionName}} (code {{.Report.AppVersionCode}})</td></tr>
 		<tr><th>Android</th><td>{{.Report.AndroidVersion}}</td></tr>
 		<tr><th>Device</th><td>{{.Report.Brand}} {{.Report.PhoneModel}} ({{.Report.Product}})</td></tr>
-		<tr><th>Build</th><td>{{.Report.Build}}</td></tr>
-		<tr><th>Thread</th><td>{{.Report.ThreadDetails}}</td></tr>
+		{{if .Report.ThreadDisplay}}<tr><th>Thread</th><td>{{.Report.ThreadDisplay}}</td></tr>{{end}}
 		<tr><th>Installation</th><td>{{.Report.InstallationID}}</td></tr>
 		<tr><th>App start (device clock)</th><td>{{.Report.UserAppStartDate}}</td></tr>
 		<tr><th>Crash (device clock)</th><td>{{.Report.UserCrashDate}}</td></tr>
