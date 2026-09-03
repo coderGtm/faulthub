@@ -17,12 +17,19 @@ dashboard for browsing and managing crash reports across multiple apps.
 
 ## Quick start
 
+    cp .env.example .env
+    # generate a hash: go run ./cmd/faulthub hash-password
+    # paste it into .env as FAULTHUB_ADMIN_PASSWORD_HASH (escape every $ as $$)
     docker compose up -d --build
 
-Then open `http://<host>:8080` behind your TLS reverse proxy, log in with
-the admin password, create an app, and copy the API key (shown once).
+For local HTTP testing (no TLS), set `FAULTHUB_COOKIE_SECURE=false` in `.env`
+before starting — otherwise the browser won't persist the session cookie
+over plain HTTP.
 
-Generate the admin password hash:
+Open `http://<host>:8080`, log in with the admin password, create an app, and
+copy the API key (shown once).
+
+To regenerate or inspect the admin password hash:
 
     docker compose exec faulthub /faulthub hash-password
     # or locally: go run ./cmd/faulthub hash-password

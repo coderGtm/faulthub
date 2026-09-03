@@ -1,0 +1,6 @@
+.git
+.superpowers
+docs
+*.db
+.env
+.env.example
