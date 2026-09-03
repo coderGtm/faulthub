@@ -28,8 +28,8 @@
 		<option value="">all</option>
 		{{range .Devices}}<option value="{{.}}" {{if eq $.Device .}}selected{{end}}>{{.}}</option>{{end}}
 	</select></div>
-	<div><label>From</label><input type="date" name="from" value="{{.From}}"></div>
-	<div><label>To</label><input type="date" name="to" value="{{.To}}"></div>
+	<div><label>From</label><input type="text" name="from" value="{{.From}}" placeholder="dd-mm-yyyy" pattern="\d{2}-\d{2}-\d{4}" maxlength="10" inputmode="numeric"></div>
+	<div><label>To</label><input type="text" name="to" value="{{.To}}" placeholder="dd-mm-yyyy" pattern="\d{2}-\d{2}-\d{4}" maxlength="10" inputmode="numeric"></div>
 	<div><label>Sort</label>
 	<select name="sort">
 		<option value="last" {{if eq .Sort "last"}}selected{{end}}>last seen</option>

@@ -25,6 +25,8 @@ function fhThemeColors() {
 	return {
 		muted: get("--muted"), border: get("--border"),
 		accent: get("--accent"), soft: get("--accent-soft"),
+		line: get("--chart-line") || get("--accent"),
+		fill: get("--chart-fill") || get("--accent-soft"),
 		palette: [get("--c1"), get("--c2"), get("--c3"), get("--c4"), get("--c5"), get("--c6")]
 	};
 }
@@ -67,7 +69,7 @@ function fhBuildCharts() {
 		} else {
 			cfg = {
 				type: "line",
-				data: { labels: labels, datasets: [{ data: values, borderColor: C.accent, backgroundColor: C.soft, fill: true, tension: 0.35, pointRadius: 3, pointBackgroundColor: C.accent, borderWidth: 2 }] },
+				data: { labels: labels, datasets: [{ data: values, borderColor: C.line, backgroundColor: C.fill, fill: true, tension: 0.35, pointRadius: 3, pointBackgroundColor: C.line, borderWidth: 2 }] },
 				options: {
 					responsive: true, maintainAspectRatio: false,
 					plugins: { legend: { display: false } },

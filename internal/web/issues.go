@@ -9,6 +9,16 @@ import (
 	"faulthub/internal/store"
 )
 
+func parseFilterDate(v string) (time.Time, bool) {
+	if t, err := time.Parse("02-01-2006", v); err == nil {
+		return t, true
+	}
+	if t, err := time.Parse("2006-01-02", v); err == nil {
+		return t, true
+	}
+	return time.Time{}, false
+}
+
 func pageNums(total, perPage, page int) []int {
 	pages := (total + perPage - 1) / perPage
 	if pages < 1 {
@@ -70,12 +80,12 @@ func (s *Server) pageIssues(w http.ResponseWriter, r *http.Request) {
 		f.Sort = "last"
 	}
 	if v := q.Get("from"); v != "" {
-		if t, err := time.Parse("2006-01-02", v); err == nil {
+		if t, ok := parseFilterDate(v); ok {
 			f.From = t
 		}
 	}
 	if v := q.Get("to"); v != "" {
-		if t, err := time.Parse("2006-01-02", v); err == nil {
+		if t, ok := parseFilterDate(v); ok {
 			f.To = t.Add(24*time.Hour - time.Second)
 		}
 	}

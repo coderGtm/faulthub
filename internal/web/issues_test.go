@@ -41,6 +41,27 @@ func TestIssuesListFiltersAndPaginates(t *testing.T) {
 	if w.Code != 200 || !strings.Contains(w.Body.String(), "java.lang.NullPointerException") {
 		t.Fatalf("report-level filters: %d", w.Code)
 	}
+
+	w = get(h, issuePath(app, "?from=01-01-2000&to=01-01-2001"), session, csrf)
+	if w.Code != 200 || strings.Contains(w.Body.String(), "java.lang.NullPointerException") {
+		t.Fatal("dd-mm-yyyy range outside data must show empty state")
+	}
+	w = get(h, issuePath(app, "?from=01-01-2000&to=01-01-2100"), session, csrf)
+	if w.Code != 200 || !strings.Contains(w.Body.String(), "java.lang.NullPointerException") {
+		t.Fatal("dd-mm-yyyy range covering data must list issues")
+	}
+}
+
+func TestParseFilterDate(t *testing.T) {
+	if got, ok := parseFilterDate("03-09-2026"); !ok || got.Day() != 3 || got.Month() != 9 || got.Year() != 2026 {
+		t.Fatalf("dd-mm-yyyy: %+v %v", got, ok)
+	}
+	if _, ok := parseFilterDate("2026-09-03"); !ok {
+		t.Fatal("iso date must keep working")
+	}
+	if _, ok := parseFilterDate("not-a-date"); ok {
+		t.Fatal("garbage must not parse")
+	}
 }
 
 func TestIssueDetailAndStatus(t *testing.T) {

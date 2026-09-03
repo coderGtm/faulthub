@@ -17,6 +17,8 @@
 	--resolved-bg: #e3f2e7;
 	--resolved-fg: #2c7a4b;
 	--code-bg: #eef1f6;
+	--chart-line: #2e6be6;
+	--chart-fill: #dfe9fb;
 	--shadow: 0 1px 2px rgba(34, 48, 65, 0.05), 0 4px 16px rgba(34, 48, 65, 0.06);
 	--radius: 12px;
 	--radius-sm: 8px;
@@ -40,6 +42,8 @@
 	--resolved-bg: #17332a;
 	--resolved-fg: #6fd3a0;
 	--code-bg: #0d1117;
+	--chart-line: #7ba3d4;
+	--chart-fill: #1f2c40;
 	--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.28);
 }
 @media (prefers-color-scheme: dark) {
@@ -61,7 +65,9 @@
 		--open-fg: #e89a93;
 		--resolved-bg: #17332a;
 		--resolved-fg: #6fd3a0;
-		--code-bg: #0d1117;
+	--code-bg: #0d1117;
+	--chart-line: #7ba3d4;
+	--chart-fill: #1f2c40;
 		--shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.28);
 	}
 }
