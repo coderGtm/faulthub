@@ -4,6 +4,7 @@ package store
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -82,7 +83,24 @@ func (s *Store) migrate() error {
 			return fmt.Errorf("migrate: %w", err)
 		}
 	}
+	// Upgrades for databases created before the thread columns existed.
+	// ADD COLUMN is idempotent here: re-running against an already-migrated
+	// DB fails with "duplicate column name", which is ignored.
+	for _, stmt := range []string{
+		`ALTER TABLE reports ADD COLUMN thread_id INTEGER NOT NULL DEFAULT 0`,
+		`ALTER TABLE reports ADD COLUMN thread_name TEXT`,
+		`ALTER TABLE reports ADD COLUMN thread_priority INTEGER NOT NULL DEFAULT 0`,
+		`ALTER TABLE reports ADD COLUMN thread_group TEXT`,
+	} {
+		if _, err := s.db.Exec(stmt); err != nil && !isDuplicateColumn(err) {
+			return fmt.Errorf("migrate: %w", err)
+		}
+	}
 	return nil
+}
+
+func isDuplicateColumn(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "duplicate column name")
 }
 
 func fmtTime(t time.Time) string { return t.UTC().Format(time.RFC3339) }
