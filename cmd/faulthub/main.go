@@ -49,6 +49,12 @@ func main() {
 				os.Exit(1)
 			}
 			return
+		case "backup":
+			if err := runBackup(os.Args[2:]); err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			return
 		}
 	}
 	serve(os.Args[1:])
@@ -138,6 +144,26 @@ func serve(args []string) {
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Printf("shutdown: %v", err)
 	}
+}
+
+func runBackup(args []string) error {
+	if len(args) != 1 || strings.TrimSpace(args[0]) == "" {
+		return errors.New("usage: faulthub backup <destination-file>")
+	}
+	cfg, err := config.Load(os.Getenv)
+	if err != nil {
+		return err
+	}
+	st, err := store.Open(filepath.Join(cfg.DataDir, "faulthub.db"))
+	if err != nil {
+		return err
+	}
+	defer st.Close()
+	if err := st.Backup(args[0]); err != nil {
+		return err
+	}
+	fmt.Printf("backup written to %s\n", args[0])
+	return nil
 }
 
 func runHashPassword() error {

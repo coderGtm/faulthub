@@ -81,6 +81,22 @@ limiting to see real client IPs; otherwise all traffic counts as one IP.
 shown only in the admin report view, and deleted together with its report
 (or cascaded via issue/app deletion).
 
+## Backups
+
+The database is a single SQLite file (WAL mode). Do not copy it bare
+while the server runs — take a consistent snapshot instead:
+
+    docker compose exec faulthub /faulthub backup /data/backup.db
+    docker cp $(docker compose ps -q faulthub):/data/backup.db ./faulthub-backup.db
+
+Or on a schedule from the host via cron, writing into the volume:
+
+    0 3 * * * docker exec faulthub_faulthub-1 /faulthub backup /data/nightly.db
+
+Keep a few rotated copies off the VPS. Restoring is
+`docker compose down`, replacing `/data/faulthub.db` with the backup,
+and starting again.
+
 ## Development
 
     go test ./...
