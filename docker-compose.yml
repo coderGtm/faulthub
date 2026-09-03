@@ -3,8 +3,9 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "${FAULTHUB_PORT:-8080}:${FAULTHUB_PORT:-8080}"
     environment:
+      FAULTHUB_ADDR: :${FAULTHUB_PORT:-8080}
       FAULTHUB_ADMIN_PASSWORD_HASH: ${FAULTHUB_ADMIN_PASSWORD_HASH:?set in .env}
       FAULTHUB_INGEST_RATE_PER_MIN: ${FAULTHUB_INGEST_RATE_PER_MIN:-30}
       FAULTHUB_INGEST_BURST: ${FAULTHUB_INGEST_BURST:-10}

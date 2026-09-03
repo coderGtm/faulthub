@@ -53,7 +53,8 @@ In the Android app's `local.properties`:
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `FAULTHUB_ADDR` | `:8080` | Listen address |
+| `FAULTHUB_PORT` | `8080` | Port to listen on and publish (docker compose only; sets listen addr and host mapping together) |
+| `FAULTHUB_ADDR` | `:8080` | Listen address (running the binary directly; overridden by `FAULTHUB_PORT` under compose) |
 | `FAULTHUB_DATA_DIR` | `/data` | SQLite directory |
 | `FAULTHUB_ADMIN_PASSWORD` | — | Plaintext admin password (alternative to hash) |
 | `FAULTHUB_ADMIN_PASSWORD_HASH` | — | argon2id hash (preferred) |
