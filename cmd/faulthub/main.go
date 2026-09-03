@@ -43,6 +43,12 @@ func main() {
 				os.Exit(1)
 			}
 			return
+		case "seed":
+			if err := runSeed(); err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			return
 		}
 	}
 	serve(os.Args[1:])

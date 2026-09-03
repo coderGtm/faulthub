@@ -81,3 +81,8 @@ shown only in the admin report view, and deleted together with its report
     go test ./...
     go vet ./...
     go run ./cmd/faulthub
+
+Populate a scratch database with demo apps and reports:
+
+    FAULTHUB_ADMIN_PASSWORD=x FAULTHUB_DATA_DIR=/tmp/fh-demo \
+      go run ./cmd/faulthub seed
