@@ -123,6 +123,47 @@ func TestCSRFRequired(t *testing.T) {
 	}
 }
 
+func TestAuthSlidesSessionCookie(t *testing.T) {
+	srv, _ := newServer(t)
+	token, hash, _ := keygen.NewToken()
+	if err := srv.Store.CreateSession(t.Context(), hash, time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	session := &http.Cookie{Name: "fh_session", Value: token}
+	csrf := &http.Cookie{Name: "fh_csrf", Value: "csrfval"}
+
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
+	r := httptest.NewRequest("POST", "/x", nil)
+	r.AddCookie(session)
+	r.AddCookie(csrf)
+	w := httptest.NewRecorder()
+	srv.requireAuth(next).ServeHTTP(w, r)
+
+	var slid *http.Cookie
+	for _, c := range w.Result().Cookies() {
+		if c.Name == "fh_session" {
+			slid = c
+		}
+	}
+	if slid == nil {
+		t.Fatal("authenticated request must re-issue the session cookie")
+	}
+	expected := time.Now().Add(srv.SessionTTL)
+	if d := slid.Expires.Sub(expected); d > 30*time.Second || d < -30*time.Second {
+		t.Fatalf("session cookie expiry %v not ~now+TTL (%v)", slid.Expires, expected)
+	}
+	if !slid.HttpOnly || slid.SameSite != http.SameSiteLaxMode || slid.Path != "/" {
+		t.Fatalf("slid cookie attributes wrong: %+v", slid)
+	}
+	for _, c := range w.Result().Cookies() {
+		if c.Name == "fh_csrf" && c.Value != csrf.Value {
+			t.Fatalf("re-issued csrf cookie value changed: %q", c.Value)
+		}
+	}
+}
+
 func TestLogoutRequiresAuth(t *testing.T) {
 	_, h := newServer(t)
 	w := postForm(h, "/logout", url.Values{"csrf": {"x"}})

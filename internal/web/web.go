@@ -98,7 +98,9 @@ func (s *Server) requireAuth(next http.HandlerFunc) http.HandlerFunc {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
-		_ = s.Store.TouchSession(r.Context(), hash, time.Now().Add(s.SessionTTL))
+		expires := time.Now().Add(s.SessionTTL)
+		_ = s.Store.TouchSession(r.Context(), hash, expires)
+		s.setSessionCookies(w, c.Value, s.csrfToken(r), expires)
 		next(w, r)
 	}
 }
