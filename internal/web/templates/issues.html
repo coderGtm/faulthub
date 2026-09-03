@@ -62,7 +62,8 @@
 {{if gt (len .PageNums) 1}}
 <div class="pagination">
 	{{range .PageNums}}
-	{{if eq . $.Page}}<span><b>{{.}}</b></span>
+	{{if eq . 0}}<span class="ellipsis" aria-hidden="true">…</span>
+	{{else if eq . $.Page}}<span><b>{{.}}</b></span>
 	{{else}}<a href="?{{$.BaseQ}}&page={{.}}">{{.}}</a>{{end}}
 	{{end}}
 </div>

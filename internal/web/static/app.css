@@ -335,6 +335,7 @@ table.table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
 	border-radius: var(--radius-sm);
 	padding: 0 10px;
 }
+.pagination .ellipsis { color: var(--muted); padding: 0 4px; }
 .key-display {
 	font: 13px ui-monospace, "SF Mono", monospace;
 	background: var(--code-bg);

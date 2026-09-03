@@ -19,6 +19,9 @@ func parseFilterDate(v string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
+// pageNums returns a windowed page list with 0 marking an ellipsis gap:
+// the first page, ±2 around the current page, and the last page. Small
+// result sets are unabridged.
 func pageNums(total, perPage, page int) []int {
 	pages := (total + perPage - 1) / perPage
 	if pages < 1 {
@@ -27,8 +30,27 @@ func pageNums(total, perPage, page int) []int {
 	if page > pages {
 		page = pages
 	}
-	out := make([]int, 0, pages)
+	if pages <= 9 {
+		out := make([]int, 0, pages)
+		for i := 1; i <= pages; i++ {
+			out = append(out, i)
+		}
+		return out
+	}
+	set := map[int]bool{1: true, pages: true}
+	for i := page - 2; i <= page+2; i++ {
+		if i >= 1 && i <= pages {
+			set[i] = true
+		}
+	}
+	var out []int
 	for i := 1; i <= pages; i++ {
+		if !set[i] {
+			if len(out) == 0 || out[len(out)-1] != 0 {
+				out = append(out, 0)
+			}
+			continue
+		}
 		out = append(out, i)
 	}
 	return out

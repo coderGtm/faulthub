@@ -210,6 +210,32 @@ func TestIngestNoStackTrace(t *testing.T) {
 	}
 }
 
+func TestIngestHashTooLong(t *testing.T) {
+	h := newHandler(t)
+	body := strings.Replace(samplePayload,
+		`"STACK_TRACE_HASH": "9f8e7d6c5b4a39281706f5e4d3c2b1a0"`,
+		`"STACK_TRACE_HASH": "`+strings.Repeat("a", 129)+`"`, 1)
+	if w := do(t, h, body, nil); w.Code != 400 {
+		t.Fatalf("over-long hash: %d", w.Code)
+	}
+}
+
+func TestIngestTooDeeplyNested(t *testing.T) {
+	h := newHandler(t)
+	deep := strings.Repeat("[", 40) + strings.Repeat("]", 40)
+	body := `{"REPORT_ID": "deep-1", "THREAD_DETAILS": ` + deep + `}`
+	if w := do(t, h, body, nil); w.Code != 400 {
+		t.Fatalf("deep nesting: %d", w.Code)
+	}
+	if _, err := h.Store.GetReport(t.Context(), 1, "deep-1"); err == nil {
+		t.Fatal("rejected report must not persist")
+	}
+	// Sanity: a legit nested THREAD_DETAILS object still passes.
+	if w := do(t, h, samplePayload, nil); w.Code != 201 {
+		t.Fatalf("normal nested object: %d", w.Code)
+	}
+}
+
 func TestIngestThreadDetails(t *testing.T) {
 	h := newHandler(t)
 

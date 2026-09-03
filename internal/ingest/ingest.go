@@ -77,6 +77,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "malformed json"})
 		return
 	}
+	if tooDeep(body, 0) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "json nested too deeply"})
+		return
+	}
 
 	reportID := str(body, "REPORT_ID")
 	if reportID == "" || len(reportID) > 128 {
@@ -88,6 +92,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	hash := str(body, "STACK_TRACE_HASH")
 	if hash == "" {
 		hash = NoTraceHash
+	}
+	if len(hash) > 128 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "STACK_TRACE_HASH too long (max 128 chars)"})
+		return
 	}
 	packageName := str(body, "PACKAGE_NAME")
 	threadID, threadName, threadPriority, threadGroup := parseThreadDetails(body["THREAD_DETAILS"])
@@ -128,6 +136,31 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		code = http.StatusCreated
 	}
 	writeJSON(w, code, map[string]bool{"ok": true})
+}
+
+const maxJSONDepth = 32
+
+// tooDeep rejects pathologically nested payloads (e.g. 100k-deep arrays)
+// that would waste CPU and memory despite the total body cap.
+func tooDeep(v any, depth int) bool {
+	if depth > maxJSONDepth {
+		return true
+	}
+	switch t := v.(type) {
+	case map[string]any:
+		for _, c := range t {
+			if tooDeep(c, depth+1) {
+				return true
+			}
+		}
+	case []any:
+		for _, c := range t {
+			if tooDeep(c, depth+1) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func str(m map[string]any, key string) string {

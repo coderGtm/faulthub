@@ -142,3 +142,26 @@ func TestReportLinksBackToIssue(t *testing.T) {
 		t.Fatalf("report page must link to its issue: %d", w.Code)
 	}
 }
+
+func TestPageNumsWindowed(t *testing.T) {
+	small := pageNums(100, 25, 1) // 4 pages: unabridged
+	if len(small) != 4 || small[0] != 1 || small[3] != 4 {
+		t.Fatalf("small: %v", small)
+	}
+	big := pageNums(10000, 25, 200) // 400 pages: windowed
+	if len(big) > 9 {
+		t.Fatalf("windowed list too long: %v", big)
+	}
+	foundCurrent, foundEllipsis := false, false
+	for _, p := range big {
+		if p == 200 {
+			foundCurrent = true
+		}
+		if p == 0 {
+			foundEllipsis = true
+		}
+	}
+	if !foundCurrent || !foundEllipsis || big[0] != 1 || big[len(big)-1] != 400 {
+		t.Fatalf("window wrong: %v", big)
+	}
+}
