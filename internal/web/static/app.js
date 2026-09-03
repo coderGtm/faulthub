@@ -11,6 +11,14 @@ document.addEventListener("submit", function (e) {
 	var f = e.target.closest("form[data-confirm]");
 	if (f && !window.confirm(f.dataset.confirm)) e.preventDefault();
 });
+document.querySelectorAll("time[datetime]").forEach(function (el) {
+	var d = new Date(el.getAttribute("datetime"));
+	if (isNaN(d)) return;
+	el.textContent = d.toLocaleString(undefined, {
+		month: "short", day: "numeric", year: "numeric",
+		hour: "2-digit", minute: "2-digit"
+	});
+});
 (function () {
 	var root = document.documentElement;
 	try {

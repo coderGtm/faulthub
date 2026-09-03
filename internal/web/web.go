@@ -24,14 +24,19 @@ var pageNames = []string{
 }
 
 var funcMap = template.FuncMap{
-	"fmtTime": func(t time.Time) string {
+	"fmtTime": func(t time.Time) template.HTML {
 		if t.IsZero() {
 			return "—"
 		}
-		return t.UTC().Format("Jan 2, 2006 15:04 UTC")
+		utc := t.UTC()
+		return template.HTML(`<time datetime="` + utc.Format(time.RFC3339) + `">` +
+			utc.Format("Jan 2, 2006 15:04 UTC") + `</time>`)
 	},
 	"chartBars": func(counts []store.Count) template.HTML {
 		return charts.Bars(toBars(counts), 500, 8*36)
+	},
+	"chartPie": func(counts []store.Count) template.HTML {
+		return charts.Donut(toBars(counts), 500, 200)
 	},
 }
 

@@ -28,9 +28,9 @@
 
 <div class="grid2">
 	<div class="card"><h2>By app version</h2>{{chartBars .ByVersion}}</div>
-	<div class="card"><h2>By Android version</h2>{{chartBars .ByAndroid}}</div>
+	<div class="card"><h2>By Android version</h2>{{chartPie .ByAndroid}}</div>
 </div>
-<div class="card"><h2>Top devices</h2>{{chartBars .ByDevice}}</div>
+<div class="card"><h2>Top devices</h2>{{chartPie .ByDevice}}</div>
 
 <div class="card">
 	<h2>Top issues</h2>

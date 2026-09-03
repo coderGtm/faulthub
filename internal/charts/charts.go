@@ -36,23 +36,38 @@ func Line(points []Point, width, height int) template.HTML {
 	top := niceMax(maxV)
 	plotW := width - 34 - 46
 	plotH := height - 30 - 8
+	base := float64(height - 30)
 	var b strings.Builder
 	b.WriteString(svgOpen(width, height))
 	axes(&b, width, height, plotH, top)
+	for i := 0; i <= 4; i++ {
+		y := base - float64(plotH*i)/4
+		b.WriteString(`<line class="chart-grid" x1="34" y1="` + f1(y) +
+			`" x2="` + strconv.Itoa(34+plotW) + `" y2="` + f1(y) + `"/>`)
+	}
 	step := float64(plotW) / float64(len(points)-1)
 	labelEvery := len(points)/8 + 1
 	var coords []string
 	for i, p := range points {
 		x := 34.0 + float64(i)*step
-		y := float64(height-30) - (float64(p.Value)/float64(top))*float64(plotH)
+		y := base - (float64(p.Value)/float64(top))*float64(plotH)
 		coords = append(coords, coord(x, y))
 		if i%labelEvery == 0 || i == len(points)-1 {
 			b.WriteString(text(x, float64(height-12), p.Label, "middle"))
 		}
 	}
 	b.WriteString(`<polygon class="chart-area" points="` + strings.Join(coords, " ") +
-		" " + coord(34, float64(height-30)) + " " + coord(34+float64(plotW), float64(height-30)) + `"/>`)
+		" " + coord(34, base) + " " + coord(34+float64(plotW), base) + `"/>`)
 	b.WriteString(`<polyline class="chart-line" points="` + strings.Join(coords, " ") + `"/>`)
+	for i, p := range points {
+		if p.Value == 0 {
+			continue
+		}
+		x := 34.0 + float64(i)*step
+		y := base - (float64(p.Value)/float64(top))*float64(plotH)
+		b.WriteString(`<circle class="chart-dot" cx="` + f1(x) + `" cy="` + f1(y) + `" r="2.6"><title>` +
+			html.EscapeString(p.Label+": "+strconv.FormatInt(p.Value, 10)) + `</title></circle>`)
+	}
 	b.WriteString("</svg>")
 	return template.HTML(b.String())
 }
@@ -78,12 +93,82 @@ func Bars(bars []Bar, width, height int) template.HTML {
 		yMid := i*rowH + rowH/2
 		w := int(math.Round(float64(bar.Value) / float64(maxV) * float64(barMax)))
 		b.WriteString(`<rect class="chart-bar" x="170" y="` + strconv.Itoa(i*rowH+4) +
-			`" width="` + strconv.Itoa(w) + `" height="` + strconv.Itoa(rowH-8) + `"/>`)
+			`" width="` + strconv.Itoa(w) + `" height="` + strconv.Itoa(rowH-8) + `" rx="3"><title>` +
+			html.EscapeString(bar.Label+": "+strconv.FormatInt(bar.Value, 10)) + `</title></rect>`)
 		b.WriteString(text(8, float64(yMid+4), truncate(bar.Label, 24), "start"))
 		b.WriteString(text(float64(170+w+8), float64(yMid+4), strconv.FormatInt(bar.Value, 10), "start"))
 	}
 	b.WriteString("</svg>")
 	return template.HTML(b.String())
+}
+
+func Donut(bars []Bar, width, height int) template.HTML {
+	var total int64
+	for _, bar := range bars {
+		total += bar.Value
+	}
+	if len(bars) == 0 || total == 0 {
+		return emptyState(width, height)
+	}
+	shown := bars
+	var other int64
+	if len(shown) > 6 {
+		shown = bars[:6]
+		for _, bar := range bars[6:] {
+			other += bar.Value
+		}
+	}
+	cx, cy, r := 90.0, float64(height)/2, math.Min(64, float64(height)/2-12)
+	lx := 196.0
+	var b strings.Builder
+	b.WriteString(svgOpen(width, height))
+	var offset float64
+	slot := func(i int) string { return "chart-slice-" + strconv.Itoa(i%6+1) }
+	seg := func(label string, value int64, i int) {
+		pct := float64(value) / float64(total) * 100
+		b.WriteString(`<circle class="` + slot(i) + `" cx="` + f1(cx) + `" cy="` + f1(cy) +
+			`" r="` + f1(r) + `" fill="transparent" stroke-width="26" pathLength="100" stroke-dasharray="` +
+			f1(pct) + ` 100" stroke-dashoffset="` + f1(-offset) +
+			`" transform="rotate(-90 ` + f1(cx) + ` ` + f1(cy) + `)"><title>` +
+			html.EscapeString(label+": "+strconv.FormatInt(value, 10)) + `</title></circle>`)
+		offset += pct
+	}
+	for i, bar := range shown {
+		seg(bar.Label, bar.Value, i)
+	}
+	if other > 0 {
+		seg("Other", other, len(shown))
+	}
+	b.WriteString(text(cx, cy+6, strconv.FormatInt(total, 10), "middle"))
+	ly := cy - float64(len(shown)+b2i(other > 0)-1)*13
+	for i, bar := range shown {
+		pct := float64(bar.Value) / float64(total) * 100
+		legendRow(&b, lx, ly+float64(i*26), i, truncate(bar.Label, 22), pct)
+	}
+	if other > 0 {
+		legendRow(&b, lx, ly+float64(len(shown)*26), len(shown), "Other", float64(other)/float64(total)*100)
+	}
+	b.WriteString("</svg>")
+	return template.HTML(b.String())
+}
+
+func legendRow(b *strings.Builder, x, y float64, i int, label string, pct float64) {
+	cls := "chart-swatch-" + strconv.Itoa(i%6+1)
+	b.WriteString(`<rect class="` + cls + `" x="` + f1(x) + `" y="` + f1(y-9) +
+		`" width="11" height="11" rx="3"/>`)
+	b.WriteString(text(x+17, y+1, label, "start"))
+	b.WriteString(text(x+172, y+1, strconv.FormatFloat(pct, 'f', 1, 64)+"%", "end"))
+}
+
+func b2i(ok bool) int {
+	if ok {
+		return 1
+	}
+	return 0
+}
+
+func f1(f float64) string {
+	return strconv.FormatFloat(f, 'f', 1, 64)
 }
 
 func emptyState(width, height int) template.HTML {

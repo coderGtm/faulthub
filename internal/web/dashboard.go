@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
+	"time"
 
 	"faulthub/internal/charts"
 	"faulthub/internal/store"
@@ -12,9 +13,16 @@ import (
 func toPoints(counts []store.Count) []charts.Point {
 	pts := make([]charts.Point, len(counts))
 	for i, c := range counts {
-		pts[i] = charts.Point{Label: c.Label, Value: c.Count}
+		pts[i] = charts.Point{Label: shortDay(c.Label), Value: c.Count}
 	}
 	return pts
+}
+
+func shortDay(label string) string {
+	if t, err := time.Parse("2006-01-02", label); err == nil {
+		return t.Format("Jan 2")
+	}
+	return label
 }
 
 func toBars(counts []store.Count) []charts.Bar {
