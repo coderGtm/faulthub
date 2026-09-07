@@ -22,11 +22,31 @@ dashboard for browsing and managing crash reports across multiple apps.
 ## Quick start
 
     cp .env.example .env
-    # set the admin password (hashes it and writes the $$-escaped value into .env):
-    #   with Go:     go run ./cmd/faulthub set-password .env
-    #   docker only: docker compose build && \
-    #                docker compose run --rm --user root \
-    #                  -v "$PWD/.env":/env.txt faulthub set-password /env.txt
+
+Set the admin password. On a machine with Go installed, run:
+
+    go run ./cmd/faulthub set-password .env
+
+On a Docker-only host (no Go), run the same command inside a throwaway
+container, mounting your `.env` so the container can edit it:
+
+    docker compose build
+    docker compose run --rm --user root -v "$PWD/.env":/env.txt faulthub set-password /env.txt
+
+You'll be prompted for the password twice. The command hashes it with argon2id
+and writes the result into `.env` as `FAULTHUB_ADMIN_PASSWORD_HASH`, already
+escaped for Compose (a raw hash contains `$`, which Compose would otherwise
+treat as a variable reference and mangle). What the pieces do:
+
+- `docker compose build` builds the image, so a one-off command can be run from it.
+- `docker compose run ... faulthub` starts a throwaway container from that image (`faulthub` is the service name).
+- `--rm` deletes that container when the command finishes.
+- `-v "$PWD/.env":/env.txt` mounts your host's `.env` into the container at `/env.txt`, giving the command a file it can write — without this it can't reach `.env` on the host.
+- `--user root` is needed because the container runs as an unprivileged user that can't write your host's `.env`.
+- `set-password /env.txt` is the subcommand and the file to update.
+
+Then start the stack:
+
     docker compose up -d --build
 
 For local HTTP testing (no TLS), set `FAULTHUB_COOKIE_SECURE=false` in `.env`
