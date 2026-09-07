@@ -22,8 +22,11 @@ dashboard for browsing and managing crash reports across multiple apps.
 ## Quick start
 
     cp .env.example .env
-    # generate a hash: go run ./cmd/faulthub hash-password
-    # paste it into .env as FAULTHUB_ADMIN_PASSWORD_HASH (escape every $ as $$)
+    # set the admin password (hashes it and writes the $$-escaped value into .env):
+    #   with Go:     go run ./cmd/faulthub set-password .env
+    #   docker only: docker compose build && \
+    #                docker compose run --rm --user root \
+    #                  -v "$PWD/.env":/env.txt faulthub set-password /env.txt
     docker compose up -d --build
 
 For local HTTP testing (no TLS), set `FAULTHUB_COOKIE_SECURE=false` in `.env`
@@ -33,14 +36,19 @@ over plain HTTP.
 Open `http://<host>:8080`, log in with the admin password, create an app, and
 copy the API key (shown once).
 
-To regenerate or inspect the admin password hash:
+To change the admin password later, run `set-password` again (same commands as
+above), then `docker compose up -d` to recreate the container.
+
+To regenerate or inspect a raw argon2id hash (e.g. for `docker run`/other
+setups that don't read `.env`):
 
     docker compose exec faulthub /faulthub hash-password
     # or locally: go run ./cmd/faulthub hash-password
 
-Note: when pasting a generated `$argon2id$...` hash into `.env`, every `$`
-must be escaped as `$$` (Compose interpolates `.env` values), or export the
-variable in the shell instead.
+`hash-password` prints the unescaped hash; `set-password` is the one that
+writes it into `.env` ready for Compose. Compose interpolates `.env` values,
+so a raw `$argon2id$...` must be escaped as `$$argon2id$$...` — `set-password`
+does that for you.
 
 ## ACRA client configuration
 

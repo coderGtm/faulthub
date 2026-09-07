@@ -55,6 +55,12 @@ func main() {
 				os.Exit(1)
 			}
 			return
+		case "set-password":
+			if err := runSetPassword(os.Args[2:]); err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			return
 		}
 	}
 	serve(os.Args[1:])
