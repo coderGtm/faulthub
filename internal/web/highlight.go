@@ -166,7 +166,11 @@ func highlightJSON(src string) string {
 			if k < len(src) && src[k] == ':' {
 				cls = "tok-key"
 			}
-			b.WriteString(`<span class="` + cls + `">` + html.EscapeString(lit) + `</span>`)
+			b.WriteString(`<span class="`)
+			b.WriteString(cls)
+			b.WriteString(`">`)
+			b.WriteString(html.EscapeString(lit))
+			b.WriteString(`</span>`)
 			i = j + 1
 		case c == '{' || c == '}' || c == '[' || c == ']' || c == ':' || c == ',':
 			b.WriteString(html.EscapeString(src[i : i+1]))
@@ -196,7 +200,11 @@ func highlightJSON(src string) string {
 			if cls == "" {
 				b.WriteString(esc)
 			} else {
-				b.WriteString(`<span class="` + cls + `">` + esc + `</span>`)
+				b.WriteString(`<span class="`)
+				b.WriteString(cls)
+				b.WriteString(`">`)
+				b.WriteString(esc)
+				b.WriteString(`</span>`)
 			}
 			i = j
 		}
