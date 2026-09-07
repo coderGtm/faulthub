@@ -82,13 +82,19 @@ func hlStack(s string) template.HTML {
 		esc := html.EscapeString(ln)
 		switch {
 		case strings.HasPrefix(trimmed, "Caused by:"):
-			b.WriteString(`<span class="tok-ex">` + esc + `</span>`)
+			b.WriteString(`<span class="tok-ex">`)
+			b.WriteString(esc)
+			b.WriteString(`</span>`)
 		case strings.HasPrefix(trimmed, "at "):
 			b.WriteString(hlFrame(ln))
 		case strings.HasPrefix(trimmed, "..."):
-			b.WriteString(`<span class="muted">` + esc + `</span>`)
+			b.WriteString(`<span class="muted">`)
+			b.WriteString(esc)
+			b.WriteString(`</span>`)
 		case !headerDone && trimmed != "":
-			b.WriteString(`<span class="tok-ex">` + esc + `</span>`)
+			b.WriteString(`<span class="tok-ex">`)
+			b.WriteString(esc)
+			b.WriteString(`</span>`)
 			headerDone = true
 		default:
 			b.WriteString(esc)
